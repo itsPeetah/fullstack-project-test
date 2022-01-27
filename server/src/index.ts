@@ -10,6 +10,8 @@ import UserResolver from "./schema/resolvers/user";
 import connectRedis from "connect-redis";
 import session from "express-session";
 import { createClient } from "redis";
+import Post from "./schema/entities/Post";
+import PostResolver from "./schema/resolvers/post";
 
 const main = async () => {
     // Initialize database connection
@@ -20,7 +22,7 @@ const main = async () => {
         password: "postgres",
         logging: true,
         synchronize: true,
-        entities: [User],
+        entities: [User, Post],
     });
 
     // Initialize express app
@@ -57,7 +59,7 @@ const main = async () => {
     // Initialize apollo server
     const apollo = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [HelloResolver, UserResolver],
+            resolvers: [HelloResolver, UserResolver, PostResolver],
             validate: false,
         }),
         context: ({ req, res }): MyGraphQLContext => ({ req, res }),

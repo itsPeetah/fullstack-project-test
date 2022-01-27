@@ -65,7 +65,7 @@ class UserResponse {
     errors?: FieldError[];
 }
 
-@Resolver(() => User)
+@Resolver()
 export default class UserResolver {
     // Queries
     @Query(() => [User])
