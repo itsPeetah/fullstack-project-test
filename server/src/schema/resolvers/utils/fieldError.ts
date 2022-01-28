@@ -27,7 +27,7 @@ export const unknownError: FieldError = {
     message: "Something went wrong...",
 };
 export const usernameNotFoundError: FieldError = {
-    field: "username",
+    field: "usernameOrEmail",
     message: "User not found.",
 };
 

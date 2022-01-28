@@ -18,7 +18,7 @@ export const Login: React.FC<loginProps> = ({}) => {
         <Wrapper variant="small">
             <Box padding={8} rounded={"16px"} boxShadow="lg">
                 <Formik
-                    initialValues={{ username: "", password: "" }}
+                    initialValues={{ usernameOrEmail: "", password: "" }}
                     onSubmit={async (values, { setErrors }) => {
                         const response = await register(values); // The "values" keys map perfectly to the GraphQL mutation's parameters so we don't need to specify them
 
@@ -35,9 +35,9 @@ export const Login: React.FC<loginProps> = ({}) => {
                     {({ isSubmitting }) => (
                         <Form>
                             <InputField
-                                name="username"
-                                placeholder="Username..."
-                                label="Username"
+                                name="usernameOrEmail"
+                                placeholder="Username or email..."
+                                label="Username or Email"
                             ></InputField>
                             <Box mt={4}>
                                 <InputField
