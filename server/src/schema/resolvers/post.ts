@@ -21,9 +21,9 @@ class PostTitleAndTextInput {
 Resolver();
 export default class PostResolver {
     @Query(() => [Post])
-    async allPosts(): Promise<Post[]> {
-        const all = await Post.find();
-        return all;
+    async posts(): Promise<Post[]> {
+        const allPosts = await Post.find();
+        return allPosts;
     }
 
     @Mutation(() => Post)
