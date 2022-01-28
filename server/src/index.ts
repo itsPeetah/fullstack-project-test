@@ -30,7 +30,7 @@ const main = async () => {
 
     app.use(
         cors({
-            origin: "http://localhost:4000",
+            origin: "http://localhost:3000", // frontend web server address
             credentials: true,
         })
     );

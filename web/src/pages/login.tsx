@@ -4,31 +4,30 @@ import { useRouter } from "next/router";
 import React from "react";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
-import { useRegisterMutation } from "../generated/graphql";
+import { useLoginMutation, useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 
-interface registerProps {}
+interface loginProps {}
 
-export const Register: React.FC<registerProps> = ({}) => {
+export const Login: React.FC<loginProps> = ({}) => {
     const router = useRouter();
-    const [{}, register] = useRegisterMutation();
+    const [{}, register] = useLoginMutation();
     return (
         <Wrapper variant="small">
             <Box padding={8} rounded={"16px"} boxShadow="lg">
                 <Formik
                     initialValues={{ username: "", password: "" }}
                     onSubmit={async (values, { setErrors }) => {
+                        console.log(values);
                         const response = await register(values); // The "values" keys map perfectly to the GraphQL mutation's parameters so we don't need to specify them
-                        if (response.data?.register.errors) {
-                            setErrors(
-                                toErrorMap(response.data.register.errors)
-                            );
-                        } else if (response.data?.register.user) {
-                            // it worked
-                            console.log("REGISTER PUSH");
-                        }
+                        console.log(response.data);
 
-                        console.log(response.data?.register.user);
+                        if (response.data?.login.errors) {
+                            setErrors(toErrorMap(response.data.login.errors));
+                        } else if (response.data?.login.user) {
+                            // it worked
+                            router.push("/");
+                        }
 
                         return response;
                     }}
@@ -55,7 +54,7 @@ export const Register: React.FC<registerProps> = ({}) => {
                                     color="blue.500"
                                     isLoading={isSubmitting}
                                 >
-                                    Register
+                                    Login
                                 </Button>
                             </Box>
                         </Form>
@@ -66,4 +65,4 @@ export const Register: React.FC<registerProps> = ({}) => {
     );
 };
 
-export default Register;
+export default Login;

@@ -114,6 +114,7 @@ export default class UserResolver {
             console.log(theUser);
 
             req.session.userId = theUser._id;
+
             return { user: theUser, errors: [] };
         } catch (err) {
             console.log("ERROR");
