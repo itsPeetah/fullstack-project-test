@@ -18,9 +18,9 @@ export const Register: React.FC<registerProps> = ({}) => {
         <Wrapper variant="small">
             <Box padding={8} rounded={"16px"} boxShadow="lg">
                 <Formik
-                    initialValues={{ username: "", password: "" }}
+                    initialValues={{ username: "", password: "", email: "" }}
                     onSubmit={async (values, { setErrors }) => {
-                        const response = await register(values); // The "values" keys map perfectly to the GraphQL mutation's parameters so we don't need to specify them
+                        const response = await register({ options: values }); // The "values" keys map perfectly to the GraphQL mutation's parameters so we don't need to specify them
                         if (response.data?.register.errors) {
                             setErrors(
                                 toErrorMap(response.data.register.errors)
@@ -36,10 +36,18 @@ export const Register: React.FC<registerProps> = ({}) => {
                     {({ isSubmitting }) => (
                         <Form>
                             <InputField
-                                name="username"
-                                placeholder="Username..."
-                                label="Username"
-                            ></InputField>
+                                name="email"
+                                placeholder="Email..."
+                                label="Email"
+                                // type="email"
+                            />
+                            <Box mt={4}>
+                                <InputField
+                                    name="username"
+                                    placeholder="Username..."
+                                    label="Username"
+                                />
+                            </Box>
                             <Box mt={4}>
                                 <InputField
                                     name="password"
@@ -48,6 +56,7 @@ export const Register: React.FC<registerProps> = ({}) => {
                                     type="password"
                                 />
                             </Box>
+
                             <Box w="100%" textAlign="center">
                                 <Button
                                     mt={4}

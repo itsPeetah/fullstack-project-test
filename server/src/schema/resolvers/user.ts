@@ -11,51 +11,29 @@ import {
 } from "type-graphql";
 import User from "../entities/User";
 import argon2 from "argon2";
+import {
+    FieldError,
+    invalidEmailError,
+    usernameTooShortError,
+    invalidUsernameError,
+    passwordTooShortError,
+    usernameTakenError,
+    unknownError,
+    usernameNotFoundError,
+    invalidPasswordError,
+} from "./utils/fieldError";
 
 @InputType()
 class UsernamePasswordInput {
+    @Field(() => String)
+    email: string;
+
     @Field(() => String)
     username: string;
 
     @Field(() => String)
     password: string;
 }
-
-@ObjectType()
-class FieldError {
-    @Field(() => String)
-    field: string;
-
-    @Field(() => String)
-    message: string;
-}
-
-const usernameTooShortError: FieldError = {
-    field: "username",
-    message: "Username must be at least 3 characters long",
-};
-const passwordTooShortError: FieldError = {
-    field: "password",
-    message: "Password must be at least 3 characters long",
-};
-const usernameTakenError: FieldError = {
-    field: "username",
-    message: "Username already taken.",
-};
-
-const unknownError: FieldError = {
-    field: "unknown",
-    message: "Something went wrong...",
-};
-const usernameNotFoundError: FieldError = {
-    field: "username",
-    message: "User not found.",
-};
-
-const invalidPasswordError: FieldError = {
-    field: "password",
-    message: "Password not valid.",
-};
 
 @ObjectType()
 class UserResponse {
@@ -99,8 +77,13 @@ export default class UserResolver {
         options: UsernamePasswordInput,
         @Ctx() { req }: MyGraphQLContext
     ): Promise<UserResponse> {
+        // Correctness checks
+        if (!options.email.includes("@"))
+            return { errors: [invalidEmailError] };
         if (options.username.length < 3)
             return { errors: [usernameTooShortError] };
+        if (options.username.includes("@"))
+            return { errors: [invalidUsernameError] };
         if (options.password.length < 3)
             return { errors: [passwordTooShortError] };
 
@@ -109,6 +92,7 @@ export default class UserResolver {
             const theUser = await User.create({
                 username: options.username,
                 password: passHashed,
+                email: options.email,
             }).save();
 
             console.log(theUser);
@@ -126,17 +110,18 @@ export default class UserResolver {
 
     @Mutation(() => UserResponse)
     async login(
-        @Arg("options", () => UsernamePasswordInput)
-        options: UsernamePasswordInput,
+        @Arg("usernameOrEmail", () => String) usernameOrEmail: string,
+        @Arg("password", () => String) password: string,
         @Ctx() { req }: MyGraphQLContext
     ): Promise<UserResponse> {
-        const theUser = await User.findOne({ username: options.username });
+        const theUser = await User.findOne(
+            usernameOrEmail.includes("@") // of course this is totally not secure
+                ? { email: usernameOrEmail }
+                : { username: usernameOrEmail }
+        );
         if (!theUser) return { errors: [usernameNotFoundError] };
 
-        const isPassValid = await argon2.verify(
-            theUser.password,
-            options.password
-        );
+        const isPassValid = await argon2.verify(theUser.password, password);
         if (!isPassValid) return { errors: [invalidPasswordError] };
 
         req.session.userId = theUser._id;
@@ -157,5 +142,15 @@ export default class UserResolver {
                 resolve(true);
             })
         );
+    }
+
+    @Mutation(() => Boolean)
+    async forgotPassword(
+        @Arg("email", () => String) email: string,
+        @Ctx() { req }: MyGraphQLContext
+    ) {
+        const user = User.findOne({ username: email });
+        if (!user) return false;
+        else return true;
     }
 }
