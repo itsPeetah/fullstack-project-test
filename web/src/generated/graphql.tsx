@@ -13,6 +13,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
+  DateTime: any;
 };
 
 export type FieldError = {
@@ -53,9 +55,11 @@ export type MutationRegisterArgs = {
 export type Post = {
   __typename?: 'Post';
   _id: Scalars['Float'];
+  createdAt: Scalars['DateTime'];
   points: Scalars['Float'];
   text: Scalars['String'];
   title: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
 };
 
 export type PostTitleAndTextInput = {
@@ -65,12 +69,12 @@ export type PostTitleAndTextInput = {
 
 export type Query = {
   __typename?: 'Query';
-  allPosts: Array<Post>;
   allUsers: Array<User>;
   echo: Scalars['String'];
   findUser?: Maybe<User>;
   hello: Scalars['String'];
   me?: Maybe<User>;
+  posts: Array<Post>;
 };
 
 
@@ -126,6 +130,11 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', _id: number, username: string } | null | undefined };
+
+export type PostsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', _id: number, title: string, createdAt: any, updatedAt: any, text: string, points: number }> };
 
 
 export const LoginDocument = gql`
@@ -184,4 +193,20 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const PostsDocument = gql`
+    query Posts {
+  posts {
+    _id
+    title
+    createdAt
+    updatedAt
+    text
+    points
+  }
+}
+    `;
+
+export function usePostsQuery(options: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });
 };
