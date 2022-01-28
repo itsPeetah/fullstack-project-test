@@ -25,4 +25,5 @@ const Index = () => {
     );
 };
 
+// this page does use SSR
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

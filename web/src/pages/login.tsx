@@ -65,4 +65,5 @@ export const Login: React.FC<loginProps> = ({}) => {
     );
 };
 
+// this page does not use SSR
 export default withUrqlClient(createUrqlClient)(Login);

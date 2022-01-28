@@ -66,4 +66,5 @@ export const Register: React.FC<registerProps> = ({}) => {
     );
 };
 
+// this page does not use SSR
 export default withUrqlClient(createUrqlClient)(Register);
