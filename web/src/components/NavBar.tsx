@@ -12,6 +12,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     let body = null;
 
     if (meFetching) {
+        body = null;
     } else if (!data?.me) {
         body = (
             <Box ml="auto">
