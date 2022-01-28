@@ -1,0 +1,4 @@
+fragment SlimUser on User {
+    username
+    email
+}
