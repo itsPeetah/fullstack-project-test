@@ -28,8 +28,6 @@ export const Register: React.FC<registerProps> = ({}) => {
                             router.push("/");
                         }
 
-                        console.log(response.data?.register.user);
-
                         return response;
                     }}
                 >

@@ -18,9 +18,7 @@ export const Login: React.FC<loginProps> = ({}) => {
                 <Formik
                     initialValues={{ username: "", password: "" }}
                     onSubmit={async (values, { setErrors }) => {
-                        console.log(values);
                         const response = await register(values); // The "values" keys map perfectly to the GraphQL mutation's parameters so we don't need to specify them
-                        console.log(response.data);
 
                         if (response.data?.login.errors) {
                             setErrors(toErrorMap(response.data.login.errors));
