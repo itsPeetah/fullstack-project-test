@@ -22,6 +22,7 @@ import {
     usernameNotFoundError,
     invalidPasswordError,
 } from "./utils/fieldError";
+import { sendEmail } from "../utils/sendEmail";
 
 @InputType()
 class UsernamePasswordInput {
@@ -150,7 +151,17 @@ export default class UserResolver {
         @Ctx() { req }: MyGraphQLContext
     ) {
         const user = User.findOne({ username: email });
-        if (!user) return false;
-        else return true;
+        if (!user) {
+            // email is not in the database
+            // no email is sent
+            return true; // not telling the user the email doesn't exist (for security reasons)
+        }
+
+        const token = "assfgsasdafe08909"; // random string for now
+
+        const text = `<a  href="http://localhost:3000/change-password/${token}">Reset your password</a>`;
+        await sendEmail(email, "Change password", text);
+
+        return true;
     }
 }

@@ -2,16 +2,16 @@ import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
-import HelloResolver from "./schema/resolvers/hello";
+import HelloResolver from "./resolvers/hello";
 import { MyGraphQLContext } from "./types/context";
 import cors from "cors";
-import User from "./schema/entities/User";
-import UserResolver from "./schema/resolvers/user";
+import User from "./entities/User";
+import UserResolver from "./resolvers/user";
 import connectRedis from "connect-redis";
 import session from "express-session";
 import { createClient } from "redis";
-import Post from "./schema/entities/Post";
-import PostResolver from "./schema/resolvers/post";
+import Post from "./entities/Post";
+import PostResolver from "./resolvers/post";
 
 const main = async () => {
     // Initialize database connection
