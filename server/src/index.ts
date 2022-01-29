@@ -9,7 +9,7 @@ import User from "./entities/User";
 import UserResolver from "./resolvers/user";
 import connectRedis from "connect-redis";
 import session from "express-session";
-import { createClient } from "redis";
+import Redis from "ioredis";
 import Post from "./entities/Post";
 import PostResolver from "./resolvers/post";
 
@@ -37,13 +37,13 @@ const main = async () => {
 
     // Initialize redis for sessions
     const RedisStore = connectRedis(session);
-    const redisClient = createClient();
+    const redis = new Redis(); // default options
 
     // Initialize session cookies
     app.use(
         session({
             name: "qid",
-            store: new RedisStore({ client: redisClient, disableTouch: true }),
+            store: new RedisStore({ client: redis, disableTouch: true }),
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 365,
                 sameSite: "lax",
@@ -62,7 +62,7 @@ const main = async () => {
             resolvers: [HelloResolver, UserResolver, PostResolver],
             validate: false,
         }),
-        context: ({ req, res }): MyGraphQLContext => ({ req, res }),
+        context: ({ req, res }): MyGraphQLContext => ({ req, res, redis }),
     });
 
     // Set routes for express app
