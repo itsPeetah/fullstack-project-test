@@ -12,6 +12,7 @@ import session from "express-session";
 import Redis from "ioredis";
 import Post from "./entities/Post";
 import PostResolver from "./resolvers/post";
+import { COOKIE_NAME, __prod__ } from "./constants";
 
 const main = async () => {
     // Initialize database connection
@@ -42,13 +43,13 @@ const main = async () => {
     // Initialize session cookies
     app.use(
         session({
-            name: "qid",
+            name: COOKIE_NAME,
             store: new RedisStore({ client: redis, disableTouch: true }),
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 365,
                 sameSite: "lax",
                 httpOnly: true,
-                secure: false,
+                secure: !__prod__,
             },
             secret: "kadfgkasfkasdofkapkdpofkkadfgkasfkasdofkapkdpofk",
             resave: false,

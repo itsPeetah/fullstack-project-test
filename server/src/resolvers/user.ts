@@ -23,6 +23,8 @@ import {
     invalidPasswordError,
 } from "./utils/fieldError";
 import { sendEmail } from "../utils/sendEmail";
+import { v4 } from "uuid";
+import { COOKIE_NAME, FORGOT_PASSWORD_TOKEN_PREFIX } from "../constants";
 
 @InputType()
 class UsernamePasswordInput {
@@ -134,7 +136,7 @@ export default class UserResolver {
     logout(@Ctx() { req, res }: MyGraphQLContext) {
         return new Promise((resolve) =>
             req.session.destroy((err) => {
-                res.clearCookie("qid"); // clear cookie on client
+                res.clearCookie(COOKIE_NAME); // clear cookie on client
                 if (err) {
                     console.log("Error destroying the session:", err);
                     resolve(false);
@@ -148,16 +150,23 @@ export default class UserResolver {
     @Mutation(() => Boolean)
     async forgotPassword(
         @Arg("email", () => String) email: string,
-        @Ctx() { req }: MyGraphQLContext
+        @Ctx() { redis }: MyGraphQLContext
     ) {
-        const user = User.findOne({ username: email });
+        const user = await User.findOne({ email });
         if (!user) {
+            console.log("NO USER");
             // email is not in the database
             // no email is sent
             return true; // not telling the user the email doesn't exist (for security reasons)
         }
 
-        const token = "assfgsasdafe08909"; // random string for now
+        const token = v4();
+        await redis.set(
+            FORGOT_PASSWORD_TOKEN_PREFIX + token,
+            user._id,
+            "ex",
+            1000 * 60 * 60 * 34 * 3 // three days
+        );
 
         const text = `<a  href="http://localhost:3000/change-password/${token}">Reset your password</a>`;
         await sendEmail(email, "Change password", text);
