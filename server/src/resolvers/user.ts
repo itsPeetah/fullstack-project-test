@@ -67,7 +67,10 @@ export default class UserResolver {
     async me(
         @Ctx() { req }: MyGraphQLContext
     ): Promise<User | null | undefined> {
-        if (!req.session.userId) return null;
+        if (!req.session.userId) {
+            console.log("NO COOKIE!");
+            return null;
+        }
 
         const theUser = await User.findOne({ _id: req.session.userId });
         return theUser; // return theUser! if I'm sure it's going to be defined
@@ -128,6 +131,7 @@ export default class UserResolver {
         if (!isPassValid) return { errors: [invalidPasswordError] };
 
         req.session.userId = theUser._id;
+        console.log(req.session);
 
         return { user: theUser };
     }

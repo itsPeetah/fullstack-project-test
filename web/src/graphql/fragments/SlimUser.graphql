@@ -1,4 +1,5 @@
 fragment SlimUser on User {
     username
     email
+    _id
 }
