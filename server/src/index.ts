@@ -13,18 +13,21 @@ import Redis from "ioredis";
 import Post from "./entities/Post";
 import PostResolver from "./resolvers/post";
 import { COOKIE_NAME, __prod__ } from "./constants";
+import path from "path";
 
 const main = async () => {
     // Initialize database connection
-    /*const orm = */ await createConnection({
+    const _orm = await createConnection({
         type: "postgres",
         database: "lireddit",
         username: "postgres",
         password: "postgres",
         logging: true,
         synchronize: true,
+        migrations: [path.join(__dirname, "./migrations/*")],
         entities: [User, Post],
     });
+    await _orm.runMigrations();
 
     // Initialize express app
     const app = express();
