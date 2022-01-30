@@ -3,6 +3,7 @@ import React from "react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
+import Router from "next/router";
 
 interface NavBarProps {}
 
@@ -40,7 +41,10 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                     color="inherit"
                     fontWeight="inherit"
                     variant={"link"}
-                    onClick={() => logout()}
+                    onClick={() => {
+                        logout();
+                        Router.replace("/login");
+                    }}
                     isLoading={logoutFetching}
                 >
                     Logout from {data.me.username}
