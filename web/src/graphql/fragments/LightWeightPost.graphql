@@ -1,0 +1,7 @@
+fragment LightWeightPost on Post {
+    title
+    text
+    points
+    authorId
+    createdAt
+}

@@ -69,6 +69,7 @@ export type MutationRegisterArgs = {
 export type Post = {
   __typename?: 'Post';
   _id: Scalars['Float'];
+  authorId: Scalars['Float'];
   createdAt: Scalars['DateTime'];
   points: Scalars['Float'];
   text: Scalars['String'];
@@ -125,6 +126,8 @@ export type UsernamePasswordInput = {
 
 export type BaseUserResponseFragment = { __typename?: 'UserResponse', user?: { __typename?: 'User', username: string, email: string, _id: number } | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined };
 
+export type LightWeightPostFragment = { __typename?: 'Post', title: string, text: string, points: number, authorId: number, createdAt: any };
+
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
 export type SlimUserFragment = { __typename?: 'User', username: string, email: string, _id: number };
@@ -136,6 +139,13 @@ export type ChangePasswordMutationVariables = Exact<{
 
 
 export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', user?: { __typename?: 'User', username: string, email: string, _id: number } | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined } };
+
+export type CreatePostMutationVariables = Exact<{
+  options: PostTitleAndTextInput;
+}>;
+
+
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', title: string, text: string, points: number, authorId: number, createdAt: any } };
 
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
@@ -198,6 +208,15 @@ export const BaseUserResponseFragmentDoc = gql`
 }
     ${SlimUserFragmentDoc}
 ${RegularErrorFragmentDoc}`;
+export const LightWeightPostFragmentDoc = gql`
+    fragment LightWeightPost on Post {
+  title
+  text
+  points
+  authorId
+  createdAt
+}
+    `;
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($token: String!, $newPassword: String!) {
   changePassword(token: $token, newPassword: $newPassword) {
@@ -208,6 +227,17 @@ export const ChangePasswordDocument = gql`
 
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
+export const CreatePostDocument = gql`
+    mutation CreatePost($options: PostTitleAndTextInput!) {
+  createPost(options: $options) {
+    ...LightWeightPost
+  }
+}
+    ${LightWeightPostFragmentDoc}`;
+
+export function useCreatePostMutation() {
+  return Urql.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument);
 };
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
