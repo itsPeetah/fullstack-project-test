@@ -2,33 +2,37 @@ import { Button, Box, Link } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
-import { useLoginMutation, useRegisterMutation } from "../generated/graphql";
+import {
+    useForgotPasswordMutation,
+    useLoginMutation,
+    useRegisterMutation,
+} from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { toErrorMap } from "../utils/toErrorMap";
 import NextLink from "next/link";
 
-interface loginProps {}
-
-export const Login: React.FC<loginProps> = ({}) => {
+export const ForgotPassword: React.FC<{}> = ({}) => {
     const router = useRouter();
-    const [{}, login] = useLoginMutation();
+    const [{}, forgotPassword] = useForgotPasswordMutation();
+    const [emailSent, setEmailSent] = useState(false);
+
     return (
         <Wrapper variant="small">
             <Box padding={8} rounded={"16px"} boxShadow="lg">
                 <Formik
-                    initialValues={{ usernameOrEmail: "", password: "" }}
+                    initialValues={{ email: "" }}
                     onSubmit={async (values, { setErrors }) => {
-                        const response = await login(values); // The "values" keys map perfectly to the GraphQL mutation's parameters so we don't need to specify them
-
-                        if (response.data?.login.errors) {
-                            setErrors(toErrorMap(response.data.login.errors));
-                        } else if (response.data?.login.user) {
-                            // it worked
-                            router.push("/");
-                        }
+                        const response = await forgotPassword(values); // The "values" keys map perfectly to the GraphQL mutation's parameters so we don't need to specify them
+                        setEmailSent(true);
+                        // if (response.data?.forgotPassword.errors) {
+                        //     setErrors(toErrorMap(response.data.forgotPassword.errors));
+                        // } else if (response.data?.forgotPassword.user) {
+                        //     // it worked
+                        //     router.push("/");
+                        // }
 
                         return response;
                     }}
@@ -36,18 +40,10 @@ export const Login: React.FC<loginProps> = ({}) => {
                     {({ isSubmitting }) => (
                         <Form>
                             <InputField
-                                name="usernameOrEmail"
-                                placeholder="Username or email..."
-                                label="Username or Email"
+                                name="email"
+                                placeholder="Email..."
+                                label="Email"
                             ></InputField>
-                            <Box mt={4}>
-                                <InputField
-                                    name="password"
-                                    placeholder="Password..."
-                                    label="Password"
-                                    type="password"
-                                />
-                            </Box>
                             <Box w="100%" textAlign="center">
                                 <Button
                                     mt={4}
@@ -55,13 +51,15 @@ export const Login: React.FC<loginProps> = ({}) => {
                                     color="blue.500"
                                     isLoading={isSubmitting}
                                 >
-                                    Login
+                                    {emailSent
+                                        ? "Send me another password recovery link"
+                                        : "Send me a password recovery link"}
                                 </Button>
                             </Box>
                             <Box w="100%" mt="4">
-                                <NextLink href="/forgot-password">
+                                <NextLink href="/login">
                                     <Link color="blue.500">
-                                        Forgot password?
+                                        Go back to login...
                                     </Link>
                                 </NextLink>
                             </Box>
@@ -74,4 +72,4 @@ export const Login: React.FC<loginProps> = ({}) => {
 };
 
 // this page does not use SSR
-export default withUrqlClient(createUrqlClient)(Login);
+export default withUrqlClient(createUrqlClient)(ForgotPassword);

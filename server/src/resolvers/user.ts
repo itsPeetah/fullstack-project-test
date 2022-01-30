@@ -134,7 +134,6 @@ export default class UserResolver {
         if (!isPassValid) return { errors: [invalidPasswordError] };
 
         req.session.userId = theUser._id;
-        // console.log(req.session);
 
         return { user: theUser };
     }
@@ -189,7 +188,8 @@ export default class UserResolver {
     ): Promise<UserResponse> {
         if (newPassword.length < 3)
             return { errors: [newPasswordTooShortError] };
-        const userId = await redis.get(FORGOT_PASSWORD_TOKEN_PREFIX + token);
+        const key = FORGOT_PASSWORD_TOKEN_PREFIX + token;
+        const userId = await redis.get(key);
         if (!userId) return { errors: [expiredTokenError] }; // might have been tampered with, but I won't bother checking that
 
         // here we know they have sent a valid token
@@ -198,7 +198,10 @@ export default class UserResolver {
 
         const passHashed = await argon2.hash(newPassword);
         user.password = passHashed;
-        user.save();
+        await user.save();
+
+        // token only valid once
+        await redis.del(key);
 
         // login our user after changing the password
         req.session.userId = parseInt(userId);
