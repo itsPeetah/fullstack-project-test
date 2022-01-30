@@ -51,6 +51,11 @@ export const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
                                 type="password"
                             ></InputField>
                             <Box w="100%" textAlign="center">
+                                {tokenError && (
+                                    <Text mt="4" color="red">
+                                        {tokenError}
+                                    </Text>
+                                )}
                                 <Button
                                     mt={4}
                                     type="submit"
@@ -63,11 +68,6 @@ export const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
                         </Form>
                     )}
                 </Formik>
-                {tokenError && (
-                    <Text align="center" color="red">
-                        {tokenError}
-                    </Text>
-                )}
             </Box>
         </Wrapper>
     );
