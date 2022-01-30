@@ -5,13 +5,8 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
-import {
-    useForgotPasswordMutation,
-    useLoginMutation,
-    useRegisterMutation,
-} from "../generated/graphql";
+import { useForgotPasswordMutation } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import { toErrorMap } from "../utils/toErrorMap";
 import NextLink from "next/link";
 
 export const ForgotPassword: React.FC<{}> = ({}) => {
@@ -27,13 +22,6 @@ export const ForgotPassword: React.FC<{}> = ({}) => {
                     onSubmit={async (values, { setErrors }) => {
                         const response = await forgotPassword(values); // The "values" keys map perfectly to the GraphQL mutation's parameters so we don't need to specify them
                         setEmailSent(true);
-                        // if (response.data?.forgotPassword.errors) {
-                        //     setErrors(toErrorMap(response.data.forgotPassword.errors));
-                        // } else if (response.data?.forgotPassword.user) {
-                        //     // it worked
-                        //     router.push("/");
-                        // }
-
                         return response;
                     }}
                 >

@@ -59,9 +59,10 @@ export const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
                                                 {tokenError}
                                             </Text>
 
-                                            <NextLink href="/login">
+                                            <NextLink href="/forgot-password">
                                                 <Link color="blue.500">
-                                                    Go forget it again.
+                                                    Click here to get a new
+                                                    token.
                                                 </Link>
                                             </NextLink>
                                         </Box>
