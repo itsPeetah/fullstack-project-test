@@ -11,10 +11,11 @@ import { createUrqlClient } from "../../utils/createUrqlClient";
 import { toErrorMap } from "../../utils/toErrorMap";
 import NextLink from "next/link";
 
-export const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
+export const ChangePassword: NextPage<{}> = () => {
     const router = useRouter();
     const [{}, changePassword] = useChangePasswordMutation();
     const [tokenError, setTokenError] = useState("");
+    console.log(router);
     return (
         <Wrapper variant="small">
             <Box padding={8} rounded={"16px"} boxShadow="lg">
@@ -22,7 +23,10 @@ export const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
                     initialValues={{ newPassword: "" }}
                     onSubmit={async (values, { setErrors }) => {
                         const response = await changePassword({
-                            token,
+                            token:
+                                typeof router.query.token === "string"
+                                    ? router.query.token
+                                    : "",
                             newPassword: values.newPassword,
                         });
                         console.log(response);
@@ -83,12 +87,6 @@ export const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
             </Box>
         </Wrapper>
     );
-};
-
-ChangePassword.getInitialProps = ({ query }) => {
-    return {
-        token: query.token as string,
-    };
 };
 
 export default withUrqlClient(createUrqlClient)(ChangePassword);

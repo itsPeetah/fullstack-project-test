@@ -27,7 +27,10 @@ export const Login: React.FC<loginProps> = ({}) => {
                             setErrors(toErrorMap(response.data.login.errors));
                         } else if (response.data?.login.user) {
                             // it worked
-                            router.push("/");
+                            // if we're coming from somewhere (through useIsAuth, e.g. create post) we go back there
+                            if (typeof router.query.next === "string")
+                                router.push(router.query.next);
+                            else router.push("/");
                         }
 
                         return response;

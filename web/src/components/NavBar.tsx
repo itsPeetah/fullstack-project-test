@@ -43,7 +43,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                     variant={"link"}
                     onClick={() => {
                         logout();
-                        Router.replace("/login");
+                        Router.replace("/");
                     }}
                     isLoading={logoutFetching}
                 >

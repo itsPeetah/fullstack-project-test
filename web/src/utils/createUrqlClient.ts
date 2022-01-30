@@ -60,7 +60,6 @@ export const createUrqlClient = (ssrExchange: any) => ({
                             }
                         );
                     },
-                    // @ts-ignore unused args
                     logout: (result, _args, cache, _info) => {
                         // clear me query
                         betterUpdateQuery<LogoutMutation, MeQuery>(
