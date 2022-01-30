@@ -22,15 +22,7 @@ export const CreatePost: React.FC<{}> = ({}) => {
                         const { error } = await createPost({ options: values });
                         // send user to home page, where new post should now appear
                         console.log("error:", error);
-                        if (
-                            error?.message.includes(
-                                "user is not authenticated."
-                            )
-                        ) {
-                            router.push("/login");
-                        } else {
-                            router.push("/");
-                        }
+                        if (!error) router.push("/");
                     }}
                 >
                     {({ isSubmitting }) => (
