@@ -39,6 +39,7 @@ export const ForgotPassword: React.FC<{}> = ({}) => {
                                     color="blue.500"
                                     isLoading={isSubmitting}
                                 >
+                                    {/*Should probably either display a link or some confirmation text to avoid eventual email spamming*/}
                                     {emailSent
                                         ? "Send me another password recovery link"
                                         : "Send me a password recovery link"}
