@@ -17,7 +17,8 @@ export const CreatePost: React.FC<{}> = ({}) => {
     useEffect(() => {
         if (!fetching && !data?.me) {
             // if you're not logged in you can't post >.<
-            router.replace("/");
+            // auto pushes you to login
+            router.replace("/login");
         }
     }, [fetching, data, router]);
 
