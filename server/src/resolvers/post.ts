@@ -12,6 +12,8 @@ import {
     UseMiddleware,
 } from "type-graphql";
 import Post from "../entities/Post";
+import { getConnection } from "typeorm";
+import { POST_QUERY_LIMIT } from "../constants";
 
 @InputType()
 class PostTitleAndTextInput {
@@ -25,9 +27,24 @@ class PostTitleAndTextInput {
 Resolver();
 export default class PostResolver {
     @Query(() => [Post])
-    async posts(): Promise<Post[]> {
-        const allPosts = await Post.find();
-        return allPosts;
+    async posts(
+        @Arg("limit", () => Int) limit: number,
+        @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    ): Promise<Post[]> {
+        // SORTING BY NEW
+        const realLimit = Math.min(POST_QUERY_LIMIT, limit);
+
+        const qb = getConnection()
+            .getRepository(Post)
+            .createQueryBuilder("p")
+            .orderBy('"createdAt"', "DESC") // note the quotes. column name requires "" for postgres, '' used to wrap them into a string
+            .take(realLimit); // take(..) better than limit(..) for pagination (from typeorm docs)
+        if (cursor)
+            qb.where('"createdAt" < :cursor', {
+                cursor: new Date(parseInt(cursor)),
+            }); // add where if cursor has been passed
+
+        return qb.getMany();
     }
 
     @Mutation(() => Post)

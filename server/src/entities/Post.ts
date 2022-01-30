@@ -18,11 +18,11 @@ export default class Post extends BaseEntity {
     _id!: number;
 
     @CreateDateColumn()
-    @Field(() => Date)
+    @Field(() => String)
     createdAt: Date;
 
     @UpdateDateColumn()
-    @Field(() => Date)
+    @Field(() => String)
     updatedAt: Date;
 
     @Column()
