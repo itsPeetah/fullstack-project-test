@@ -4,9 +4,11 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    ManyToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
+import User from "./User";
 
 @ObjectType()
 @Entity()
@@ -34,4 +36,11 @@ export default class Post extends BaseEntity {
     @Field()
     @Column({ type: "int", default: 0 })
     points!: number;
+
+    @Field()
+    @Column({ default: 1 })
+    authorId!: number;
+
+    @ManyToOne(() => User, (user) => user.posts)
+    author: User;
 }

@@ -1,11 +1,15 @@
+import { isAuth } from "../middleware/isAuth";
+import { MyGraphQLContext } from "src/types/context";
 import {
     Arg,
+    Ctx,
     Field,
     InputType,
     Int,
     Mutation,
     Query,
     Resolver,
+    UseMiddleware,
 } from "type-graphql";
 import Post from "../entities/Post";
 
@@ -27,12 +31,14 @@ export default class PostResolver {
     }
 
     @Mutation(() => Post)
+    @UseMiddleware(isAuth)
     async createPost(
-        @Arg("options") options: PostTitleAndTextInput
-    ): Promise<Post> {
+        @Arg("options") options: PostTitleAndTextInput,
+        @Ctx() { req }: MyGraphQLContext
+    ): Promise<Post | null> {
         const thePost = await Post.create({
-            title: options.title,
-            text: options.text,
+            ...options,
+            authorId: req.session.userId,
         }).save();
         return thePost;
     }
