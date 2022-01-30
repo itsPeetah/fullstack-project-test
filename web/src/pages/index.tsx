@@ -1,5 +1,6 @@
+import { Box, Heading, Stack, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import NavBar from "../components/NavBar";
+import Layout from "../components/Layout";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 
@@ -11,21 +12,30 @@ const Index = () => {
     });
 
     return (
-        <>
-            <NavBar />
-            <div>Hello world</div>
+        <Layout>
+            <div>Hello posts:</div>
             <br />
             {!data ? (
                 <div>loading...</div>
             ) : (
-                data.posts.map((p) => (
-                    <div key={p._id}>
-                        <h2>{p.title}</h2>
-                        <p>{p.text}</p>
-                    </div>
-                ))
+                <Stack spacing={8} mb={8}>
+                    {data.posts.map((p) => (
+                        <Box
+                            p={5}
+                            shadow="md"
+                            border={
+                                p.authorId === 1 ? "1px solid cyan" : "none"
+                            }
+                        >
+                            <Heading fontSize="xl">{p.title}</Heading>
+                            <Text mt={4}>
+                                {p.text.slice(0, 80).trim() + "..."}
+                            </Text>
+                        </Box>
+                    ))}
+                </Stack>
             )}
-        </>
+        </Layout>
     );
 };
 
