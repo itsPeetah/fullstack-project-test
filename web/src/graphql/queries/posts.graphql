@@ -1,10 +1,5 @@
-query Posts {
-    posts {
-        _id
-        title
-        createdAt
-        updatedAt
-        text
-        points
+query Posts($limit: Int!, $cursor: String) {
+    posts(limit: $limit, cursor: $cursor) {
+        ...LightWeightPost
     }
 }

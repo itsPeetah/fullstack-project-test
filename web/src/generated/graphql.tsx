@@ -70,11 +70,11 @@ export type Post = {
   __typename?: 'Post';
   _id: Scalars['Float'];
   authorId: Scalars['Float'];
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars['String'];
   points: Scalars['Float'];
   text: Scalars['String'];
   title: Scalars['String'];
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['String'];
 };
 
 export type PostTitleAndTextInput = {
@@ -102,6 +102,12 @@ export type QueryFindUserArgs = {
   username: Scalars['String'];
 };
 
+
+export type QueryPostsArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
 export type User = {
   __typename?: 'User';
   _id: Scalars['Int'];
@@ -126,7 +132,7 @@ export type UsernamePasswordInput = {
 
 export type BaseUserResponseFragment = { __typename?: 'UserResponse', user?: { __typename?: 'User', username: string, email: string, _id: number } | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined };
 
-export type LightWeightPostFragment = { __typename?: 'Post', title: string, text: string, points: number, authorId: number, createdAt: any };
+export type LightWeightPostFragment = { __typename?: 'Post', _id: number, title: string, text: string, points: number, authorId: number, createdAt: string };
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
@@ -145,7 +151,7 @@ export type CreatePostMutationVariables = Exact<{
 }>;
 
 
-export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', title: string, text: string, points: number, authorId: number, createdAt: any } };
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', _id: number, title: string, text: string, points: number, authorId: number, createdAt: string } };
 
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
@@ -179,10 +185,13 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', username: string, email: string, _id: number } | null | undefined };
 
-export type PostsQueryVariables = Exact<{ [key: string]: never; }>;
+export type PostsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: InputMaybe<Scalars['String']>;
+}>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', _id: number, title: string, createdAt: any, updatedAt: any, text: string, points: number }> };
+export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', _id: number, title: string, text: string, points: number, authorId: number, createdAt: string }> };
 
 export const SlimUserFragmentDoc = gql`
     fragment SlimUser on User {
@@ -210,6 +219,7 @@ export const BaseUserResponseFragmentDoc = gql`
 ${RegularErrorFragmentDoc}`;
 export const LightWeightPostFragmentDoc = gql`
     fragment LightWeightPost on Post {
+  _id
   title
   text
   points
@@ -291,17 +301,12 @@ export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'q
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };
 export const PostsDocument = gql`
-    query Posts {
-  posts {
-    _id
-    title
-    createdAt
-    updatedAt
-    text
-    points
+    query Posts($limit: Int!, $cursor: String) {
+  posts(limit: $limit, cursor: $cursor) {
+    ...LightWeightPost
   }
 }
-    `;
+    ${LightWeightPostFragmentDoc}`;
 
 export function usePostsQuery(options: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });
