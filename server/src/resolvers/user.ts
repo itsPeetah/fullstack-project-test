@@ -21,6 +21,9 @@ import {
     unknownError,
     usernameNotFoundError,
     invalidPasswordError,
+    newPasswordTooShortError,
+    expiredTokenError,
+    invalidTokenError,
 } from "./utils/fieldError";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
@@ -131,7 +134,7 @@ export default class UserResolver {
         if (!isPassValid) return { errors: [invalidPasswordError] };
 
         req.session.userId = theUser._id;
-        console.log(req.session);
+        // console.log(req.session);
 
         return { user: theUser };
     }
@@ -176,5 +179,30 @@ export default class UserResolver {
         await sendEmail(email, "Change password", text);
 
         return true;
+    }
+
+    @Mutation(() => UserResponse)
+    async changePassword(
+        @Arg("token", () => String) token: string,
+        @Arg("newPassword", () => String) newPassword: string,
+        @Ctx() { req, redis }: MyGraphQLContext
+    ): Promise<UserResponse> {
+        if (newPassword.length < 3)
+            return { errors: [newPasswordTooShortError] };
+        const userId = await redis.get(FORGOT_PASSWORD_TOKEN_PREFIX + token);
+        if (!userId) return { errors: [expiredTokenError] }; // might have been tampered with, but I won't bother checking that
+
+        // here we know they have sent a valid token
+        const user = await User.findOne(userId);
+        if (!user) return { errors: [invalidTokenError] };
+
+        const passHashed = await argon2.hash(newPassword);
+        user.password = passHashed;
+        user.save();
+
+        // login our user after changing the password
+        req.session.userId = parseInt(userId);
+
+        return { user };
     }
 }

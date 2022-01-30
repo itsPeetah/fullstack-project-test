@@ -16,9 +16,11 @@ export default class User extends BaseEntity {
     _id!: number;
 
     @CreateDateColumn()
+    @Field(() => Date)
     createdAt: Date;
 
     @UpdateDateColumn()
+    @Field(() => Date)
     updatedAt: Date;
 
     @Field(() => String)

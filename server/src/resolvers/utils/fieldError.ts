@@ -45,3 +45,18 @@ export const invalidUsernameError: FieldError = {
     field: "username",
     message: "Invalid username",
 };
+
+export const newPasswordTooShortError: FieldError = {
+    field: "newPassword",
+    message: "New password must be at least 3 characters long",
+};
+
+export const invalidTokenError: FieldError = {
+    field: "token",
+    message: "User no longer exists.",
+};
+
+export const expiredTokenError: FieldError = {
+    field: "token",
+    message: "Token has expired...",
+};
