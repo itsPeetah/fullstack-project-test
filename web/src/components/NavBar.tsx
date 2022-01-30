@@ -64,6 +64,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
             position="sticky"
             top="0"
             zIndex={10}
+            userSelect="none"
         >
             <NextLink href="/">
                 <Link fontWeight={800}>website name</Link>
