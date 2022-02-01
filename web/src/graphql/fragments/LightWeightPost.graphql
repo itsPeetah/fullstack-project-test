@@ -2,7 +2,8 @@ fragment LightWeightPost on Post {
     _id
     title
     text
+    textSnippet
     points
     authorId
-    createdAt
+    updatedAt
 }

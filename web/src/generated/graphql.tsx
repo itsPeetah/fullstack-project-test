@@ -73,6 +73,7 @@ export type Post = {
   createdAt: Scalars['String'];
   points: Scalars['Float'];
   text: Scalars['String'];
+  textSnippet: Scalars['String'];
   title: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -132,7 +133,7 @@ export type UsernamePasswordInput = {
 
 export type BaseUserResponseFragment = { __typename?: 'UserResponse', user?: { __typename?: 'User', username: string, email: string, _id: number } | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined };
 
-export type LightWeightPostFragment = { __typename?: 'Post', _id: number, title: string, text: string, points: number, authorId: number, createdAt: string };
+export type LightWeightPostFragment = { __typename?: 'Post', _id: number, title: string, text: string, textSnippet: string, points: number, authorId: number, updatedAt: string };
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
@@ -151,7 +152,7 @@ export type CreatePostMutationVariables = Exact<{
 }>;
 
 
-export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', _id: number, title: string, text: string, points: number, authorId: number, createdAt: string } };
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', _id: number, title: string, text: string, textSnippet: string, points: number, authorId: number, updatedAt: string } };
 
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
@@ -191,7 +192,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', _id: number, title: string, text: string, points: number, authorId: number, createdAt: string }> };
+export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', _id: number, title: string, text: string, textSnippet: string, points: number, authorId: number, updatedAt: string }> };
 
 export const SlimUserFragmentDoc = gql`
     fragment SlimUser on User {
@@ -222,9 +223,10 @@ export const LightWeightPostFragmentDoc = gql`
   _id
   title
   text
+  textSnippet
   points
   authorId
-  createdAt
+  updatedAt
 }
     `;
 export const ChangePasswordDocument = gql`

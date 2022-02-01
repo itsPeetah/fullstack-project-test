@@ -3,3 +3,4 @@ export const COOKIE_NAME = "qid";
 export const FORGOT_PASSWORD_TOKEN_PREFIX = "forgot_password:";
 
 export const POST_QUERY_LIMIT = 50;
+export const POST_TEXT_SNIPPET_LEN = 80;

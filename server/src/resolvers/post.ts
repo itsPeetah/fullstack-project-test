@@ -4,16 +4,18 @@ import {
     Arg,
     Ctx,
     Field,
+    FieldResolver,
     InputType,
     Int,
     Mutation,
     Query,
     Resolver,
+    Root,
     UseMiddleware,
 } from "type-graphql";
 import Post from "../entities/Post";
 import { getConnection } from "typeorm";
-import { POST_QUERY_LIMIT } from "../constants";
+import { POST_QUERY_LIMIT, POST_TEXT_SNIPPET_LEN } from "../constants";
 
 @InputType()
 class PostTitleAndTextInput {
@@ -24,8 +26,14 @@ class PostTitleAndTextInput {
     text!: string;
 }
 
-Resolver();
+Resolver((_of) => Post);
 export default class PostResolver {
+    // This crashes everything => Moved to inline in Post class
+    // @FieldResolver(() => String)
+    // textSnippet(@Root() post: Post) {
+    //     return post.text.slice(0, POST_TEXT_SNIPPET_LEN);
+    // }
+
     @Query(() => [Post])
     async posts(
         @Arg("limit", () => Int) limit: number,

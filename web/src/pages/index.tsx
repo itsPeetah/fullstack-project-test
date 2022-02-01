@@ -26,6 +26,7 @@ const Index = () => {
                     <Stack spacing={8} mb={8}>
                         {data.posts.map((p) => (
                             <Box
+                                key={p._id}
                                 p={5}
                                 shadow="md"
                                 border={
