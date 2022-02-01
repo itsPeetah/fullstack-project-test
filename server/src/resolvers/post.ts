@@ -4,18 +4,16 @@ import {
     Arg,
     Ctx,
     Field,
-    FieldResolver,
     InputType,
     Int,
     Mutation,
     Query,
     Resolver,
-    Root,
     UseMiddleware,
 } from "type-graphql";
 import Post from "../entities/Post";
 import { getConnection } from "typeorm";
-import { POST_QUERY_LIMIT, POST_TEXT_SNIPPET_LEN } from "../constants";
+import { POST_QUERY_LIMIT } from "../constants";
 
 @InputType()
 class PostTitleAndTextInput {
