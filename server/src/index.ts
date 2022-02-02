@@ -30,6 +30,8 @@ const main = async () => {
     });
     await _orm.runMigrations();
 
+    // Post.delete({});
+
     // Initialize express app
     const app = express();
 
