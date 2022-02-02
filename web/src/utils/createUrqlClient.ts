@@ -1,6 +1,6 @@
-import { cacheExchange } from "@urql/exchange-graphcache";
+import { stringifyVariables } from "@urql/core";
+import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
 import Router from "next/router";
-
 import { dedupExchange, Exchange, fetchExchange } from "urql";
 import { pipe, tap } from "wonka";
 import {
@@ -27,6 +27,42 @@ const errorExchange: Exchange =
         );
     };
 
+export const cursorPagination = (): Resolver => {
+    return (_parent, fieldArgs, cache, info) => {
+        const { parentKey: entityKey, fieldName } = info;
+
+        const allFields = cache.inspectFields(entityKey);
+        const fieldInfos = allFields.filter(
+            (info) => info.fieldName === fieldName
+        );
+        const size = fieldInfos.length;
+        if (size === 0) {
+            return undefined;
+        }
+
+        const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+        const cacheKey = cache.resolve(entityKey, fieldKey) as string;
+        const inTheCache = cache.resolve(cacheKey, "posts");
+        info.partial = !inTheCache; // cast as boolean
+
+        // check if data is in the cache, return it from the cache
+        let hasMore = true;
+        let results: string[] = [];
+        fieldInfos.forEach((fi) => {
+            const key = cache.resolve(entityKey, fi.fieldKey) as string;
+            const data = cache.resolve(key, "posts") as string[];
+            const _hasMore = cache.resolve(key, "hasMore") as boolean;
+            hasMore = hasMore && _hasMore;
+            results.push(...data);
+        });
+        return {
+            __typename: "PaginatedPosts",
+            hasMore,
+            posts: results,
+        };
+    };
+};
+
 export const createUrqlClient = (ssrExchange: any) => ({
     url: "http://localhost:4000/graphql",
     fetchOptions: {
@@ -35,6 +71,14 @@ export const createUrqlClient = (ssrExchange: any) => ({
     exchanges: [
         dedupExchange,
         cacheExchange({
+            keys: {
+                PaginatedPosts: () => null, // if we had a different field as key we could have put it here
+            },
+            resolvers: {
+                Query: {
+                    posts: cursorPagination(),
+                },
+            },
             updates: {
                 Mutation: {
                     login: (result, _args, cache, _info) => {

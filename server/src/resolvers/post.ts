@@ -7,6 +7,7 @@ import {
     InputType,
     Int,
     Mutation,
+    ObjectType,
     Query,
     Resolver,
     UseMiddleware,
@@ -24,6 +25,15 @@ class PostTitleAndTextInput {
     text!: string;
 }
 
+@ObjectType()
+class PaginatedPosts {
+    @Field(() => [Post])
+    posts: Post[];
+
+    @Field(() => Boolean)
+    hasMore: boolean;
+}
+
 Resolver((_of) => Post);
 export default class PostResolver {
     // This crashes everything => Moved to inline in Post class
@@ -32,25 +42,30 @@ export default class PostResolver {
     //     return post.text.slice(0, POST_TEXT_SNIPPET_LEN);
     // }
 
-    @Query(() => [Post])
+    @Query(() => PaginatedPosts)
     async posts(
         @Arg("limit", () => Int) limit: number,
         @Arg("cursor", () => String, { nullable: true }) cursor: string | null
-    ): Promise<Post[]> {
-        // SORTING BY NEW
+    ): Promise<PaginatedPosts> {
+        // 20 -> 21
         const realLimit = Math.min(POST_QUERY_LIMIT, limit);
-
+        const actualQueryLimit = realLimit + 1;
+        // SORTING BY NEW
         const qb = getConnection()
             .getRepository(Post)
             .createQueryBuilder("p")
             .orderBy('"createdAt"', "DESC") // note the quotes. column name requires "" for postgres, '' used to wrap them into a string
-            .take(realLimit); // take(..) better than limit(..) for pagination (from typeorm docs)
+            .take(actualQueryLimit); // take(..) better than limit(..) for pagination (from typeorm docs)
         if (cursor)
             qb.where('"createdAt" < :cursor', {
                 cursor: new Date(parseInt(cursor)),
             }); // add where if cursor has been passed
 
-        return qb.getMany();
+        const qRes = await qb.getMany();
+        return {
+            posts: qRes.slice(0, realLimit),
+            hasMore: qRes.length === actualQueryLimit,
+        };
     }
 
     @Mutation(() => Post)

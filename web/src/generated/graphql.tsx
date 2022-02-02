@@ -66,6 +66,12 @@ export type MutationRegisterArgs = {
   options: UsernamePasswordInput;
 };
 
+export type PaginatedPosts = {
+  __typename?: 'PaginatedPosts';
+  hasMore: Scalars['Boolean'];
+  posts: Array<Post>;
+};
+
 export type Post = {
   __typename?: 'Post';
   _id: Scalars['Float'];
@@ -90,7 +96,7 @@ export type Query = {
   findUser?: Maybe<User>;
   hello: Scalars['String'];
   me?: Maybe<User>;
-  posts: Array<Post>;
+  posts: PaginatedPosts;
 };
 
 
@@ -133,7 +139,7 @@ export type UsernamePasswordInput = {
 
 export type BaseUserResponseFragment = { __typename?: 'UserResponse', user?: { __typename?: 'User', username: string, email: string, _id: number } | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined };
 
-export type LightWeightPostFragment = { __typename?: 'Post', _id: number, title: string, text: string, textSnippet: string, points: number, authorId: number, updatedAt: string };
+export type LightWeightPostFragment = { __typename?: 'Post', _id: number, title: string, textSnippet: string, authorId: number, points: number, createdAt: string };
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
@@ -152,7 +158,7 @@ export type CreatePostMutationVariables = Exact<{
 }>;
 
 
-export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', _id: number, title: string, text: string, textSnippet: string, points: number, authorId: number, updatedAt: string } };
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', _id: number, title: string, textSnippet: string, authorId: number, points: number, createdAt: string } };
 
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
@@ -192,7 +198,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', _id: number, title: string, text: string, textSnippet: string, points: number, authorId: number, updatedAt: string }> };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', _id: number, title: string, textSnippet: string, authorId: number, points: number, createdAt: string }> } };
 
 export const SlimUserFragmentDoc = gql`
     fragment SlimUser on User {
@@ -222,11 +228,10 @@ export const LightWeightPostFragmentDoc = gql`
     fragment LightWeightPost on Post {
   _id
   title
-  text
   textSnippet
-  points
   authorId
-  updatedAt
+  points
+  createdAt
 }
     `;
 export const ChangePasswordDocument = gql`
@@ -305,7 +310,10 @@ export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'q
 export const PostsDocument = gql`
     query Posts($limit: Int!, $cursor: String) {
   posts(limit: $limit, cursor: $cursor) {
-    ...LightWeightPost
+    posts {
+      ...LightWeightPost
+    }
+    hasMore
   }
 }
     ${LightWeightPostFragmentDoc}`;
