@@ -3,11 +3,13 @@ import {
     Arg,
     Ctx,
     Field,
+    FieldResolver,
     InputType,
     Mutation,
     ObjectType,
     Query,
     Resolver,
+    Root,
 } from "type-graphql";
 import User from "../entities/User";
 import argon2 from "argon2";
@@ -49,8 +51,17 @@ class UserResponse {
     errors?: FieldError[];
 }
 
-@Resolver()
+@Resolver(User)
 export default class UserResolver {
+    @FieldResolver(() => String)
+    email(@Root() user: User, @Ctx() { req }: MyGraphQLContext) {
+        // this is the current user and it's ok to show them their own email
+        if (req.session.userId === user.id) return user.email;
+
+        // the current user should not be able to see someone else's email
+        return "*@*.*";
+    }
+
     // Queries
     @Query(() => [User])
     async allUsers(): Promise<User[]> {
