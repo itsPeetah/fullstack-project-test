@@ -21,8 +21,6 @@ export const PostPage: React.FC<postPageProps> = ({}) => {
         },
     });
 
-    console.log(data);
-
     if (fetching)
         return (
             <>
