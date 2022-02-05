@@ -15,6 +15,7 @@ import Post from "./entities/Post";
 import PostResolver from "./resolvers/post";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import path from "path";
+import Updoot from "./entities/Updoot";
 
 const main = async () => {
     // Initialize database connection
@@ -26,7 +27,7 @@ const main = async () => {
         logging: true,
         synchronize: true,
         migrations: [path.join(__dirname, "./migrations/*")],
-        entities: [User, Post],
+        entities: [User, Post, Updoot],
     });
     await _orm.runMigrations();
 

@@ -15,6 +15,7 @@ import {
 import Post from "../entities/Post";
 import { getConnection } from "typeorm";
 import { POST_QUERY_LIMIT } from "../constants";
+import Updoot from "../entities/Updoot";
 
 @InputType()
 class PostTitleAndTextInput {
@@ -34,13 +35,20 @@ class PaginatedPosts {
     hasMore: boolean;
 }
 
-Resolver((_of) => Post);
+Resolver((_of) => Post); // why the fuck does post crash things and user doesn't!!!???
 export default class PostResolver {
     // This crashes everything => Moved to inline in Post class
     // @FieldResolver(() => String)
     // textSnippet(@Root() post: Post) {
     //     return post.text.slice(0, POST_TEXT_SNIPPET_LEN);
     // }
+
+    @Query(() => Post, { nullable: true })
+    async post(
+        @Arg("postId", () => Int) postId: number
+    ): Promise<Post | null | undefined> {
+        return await Post.findOne(postId);
+    }
 
     @Query(() => PaginatedPosts)
     async posts(
@@ -105,5 +113,31 @@ export default class PostResolver {
         const result = await Post.delete({ id: postId });
         const affected = result.affected && result.affected > 0;
         return affected;
+    }
+
+    @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
+    async vote(
+        @Arg("postId", () => Int) postId: number,
+        @Arg("value", () => Int) value: number,
+        @Ctx() { req }: MyGraphQLContext
+    ) {
+        const { userId } = req.session;
+
+        const isUpdoot = value >= 0;
+        value = isUpdoot ? 1 : -1;
+
+        await Updoot.insert({ userId, postId, value });
+
+        getConnection().query(
+            `
+            UPDATE post
+            SET points = points ${isUpdoot ? " + 1" : " - 1"}
+            WHERE id = $1
+        `,
+            [postId]
+        );
+
+        return true;
     }
 }

@@ -13,8 +13,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
-  DateTime: any;
 };
 
 export type FieldError = {
@@ -32,6 +30,7 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   register: UserResponse;
+  vote: Scalars['Boolean'];
 };
 
 
@@ -64,6 +63,12 @@ export type MutationLoginArgs = {
 
 export type MutationRegisterArgs = {
   options: UsernamePasswordInput;
+};
+
+
+export type MutationVoteArgs = {
+  postId: Scalars['Int'];
+  value: Scalars['Int'];
 };
 
 export type PaginatedPosts = {
@@ -118,11 +123,11 @@ export type QueryPostsArgs = {
 
 export type User = {
   __typename?: 'User';
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars['String'];
   email: Scalars['String'];
   id: Scalars['Int'];
   password: Scalars['String'];
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['String'];
   username: Scalars['String'];
 };
 
