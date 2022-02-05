@@ -118,9 +118,18 @@ export const createUrqlClient = (ssrExchange: any) => ({
                         );
                     },
                     createPost: (_result, _args, cache, _info) => {
-                        cache.invalidate("Query", "posts", {
-                            limit: POST_QUERY_SIZE,
-                            // cursor: null,
+                        const allFields = cache.inspectFields("Query");
+                        const fieldInfos = allFields.filter(
+                            (info) => info.fieldName === "posts"
+                        );
+                        // invalidating the cache for each specific query
+                        // the posts query is called with different arguments when loading more / paginating
+                        fieldInfos.forEach((fi) => {
+                            cache.invalidate(
+                                "Query",
+                                "posts",
+                                fi.arguments || {}
+                            );
                         });
                     },
                 },
