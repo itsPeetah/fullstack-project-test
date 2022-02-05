@@ -39,7 +39,7 @@ const Index = () => {
                 ) : (
                     <Stack spacing={8} mb={8}>
                         {data.posts.posts.map((p) => (
-                            <Box key={p._id} p={5} shadow="md">
+                            <Box key={p.id} p={5} shadow="md">
                                 <Heading fontSize="xl">{p.title}</Heading>
                                 <Text mt={4}>{p.textSnippet + "..."}</Text>
                             </Box>

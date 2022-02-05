@@ -50,18 +50,39 @@ export default class PostResolver {
         // 20 -> 21
         const realLimit = Math.min(POST_QUERY_LIMIT, limit);
         const actualQueryLimit = realLimit + 1;
-        // SORTING BY NEW
-        const qb = getConnection()
-            .getRepository(Post)
-            .createQueryBuilder("p")
-            .orderBy('"createdAt"', "DESC") // note the quotes. column name requires "" for postgres, '' used to wrap them into a string
-            .take(actualQueryLimit); // take(..) better than limit(..) for pagination (from typeorm docs)
-        if (cursor)
-            qb.where('"createdAt" < :cursor', {
-                cursor: new Date(parseInt(cursor)),
-            }); // add where if cursor has been passed
 
-        const qRes = await qb.getMany();
+        const replacements: any[] = [actualQueryLimit];
+        if (cursor) replacements.push(new Date(parseInt(cursor)));
+
+        // "user" table must be referenced as "public.user" because it conflicts with postgres' default user table
+        const posts = await getConnection().query(
+            `
+            SELECT p.*, u.username
+            FROM post p INNER JOIN public.user u on u.id = p."authorId"
+            ${cursor ? `WHERE p."createdAt" < $2` : ""}
+            ORDER BY p."createdAt" DESC
+            LIMIT $1
+            `,
+            replacements
+        );
+
+        // SORTING BY NEW
+        // const qb = getConnection()
+        //     .getRepository(Post)
+        //     .createQueryBuilder("p")
+        //     .innerJoinAndSelect("p.author", "u", 'u.id = "p.authorId"')
+        //     .orderBy('p."createdAt"', "DESC") // note the quotes. column name requires "" for postgres, '' used to wrap them into a string
+        //     .take(actualQueryLimit); // take(..) better than limit(..) for pagination (from typeorm docs)
+        // if (cursor)
+        //     qb.where('p."createdAt" < :cursor', {
+        //         cursor: new Date(parseInt(cursor)),
+        //     }); // add where if cursor has been passed
+
+        // const qRes = await qb.getMany();
+        const qRes = posts;
+
+        console.log(qRes);
+
         return {
             posts: qRes.slice(0, realLimit),
             hasMore: qRes.length === actualQueryLimit,
@@ -83,7 +104,7 @@ export default class PostResolver {
 
     @Mutation(() => Boolean)
     async deletePost(@Arg("id", () => Int) postId: number) {
-        const result = await Post.delete({ _id: postId });
+        const result = await Post.delete({ id: postId });
         const affected = result.affected && result.affected > 0;
         return affected;
     }

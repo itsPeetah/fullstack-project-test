@@ -75,7 +75,7 @@ export default class UserResolver {
             return null;
         }
 
-        const theUser = await User.findOne({ _id: req.session.userId });
+        const theUser = await User.findOne({ id: req.session.userId });
         return theUser; // return theUser! if I'm sure it's going to be defined
     }
 
@@ -106,7 +106,7 @@ export default class UserResolver {
 
             console.log(theUser);
 
-            req.session.userId = theUser._id;
+            req.session.userId = theUser.id;
 
             return { user: theUser };
         } catch (err) {
@@ -133,7 +133,7 @@ export default class UserResolver {
         const isPassValid = await argon2.verify(theUser.password, password);
         if (!isPassValid) return { errors: [invalidPasswordError] };
 
-        req.session.userId = theUser._id;
+        req.session.userId = theUser.id;
 
         return { user: theUser };
     }
@@ -169,7 +169,7 @@ export default class UserResolver {
         const token = v4();
         await redis.set(
             FORGOT_PASSWORD_TOKEN_PREFIX + token,
-            user._id,
+            user.id,
             "ex",
             1000 * 60 * 60 * 34 * 3 // three days
         );

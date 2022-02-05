@@ -15,7 +15,7 @@ import Post from "./Post";
 export default class User extends BaseEntity {
     @Field(() => Int)
     @PrimaryGeneratedColumn()
-    _id!: number;
+    id!: number;
 
     @CreateDateColumn()
     @Field(() => Date)

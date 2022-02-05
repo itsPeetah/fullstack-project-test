@@ -1,5 +1,5 @@
 fragment LightWeightPost on Post {
-    _id
+    id
     title
     textSnippet
     authorId

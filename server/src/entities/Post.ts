@@ -16,7 +16,7 @@ import User from "./User";
 export default class Post extends BaseEntity {
     @Field()
     @PrimaryGeneratedColumn()
-    _id!: number;
+    id!: number;
 
     @CreateDateColumn()
     @Field(() => String)
@@ -48,6 +48,7 @@ export default class Post extends BaseEntity {
     @Column({ default: 1 })
     authorId!: number;
 
+    @Field(() => User)
     @ManyToOne(() => User, (user) => user.posts)
     author: User;
 }
