@@ -36,7 +36,7 @@ const Index = () => {
                     <Stack spacing={8} mb={8}>
                         {data.posts.posts.map((p) => (
                             <Flex key={p.id} p={5} shadow="md">
-                                <UpdootSection points={p.points} />
+                                <UpdootSection post={p} />
                                 <Box flexGrow={1}>
                                     <StackPost
                                         key={p.id}
