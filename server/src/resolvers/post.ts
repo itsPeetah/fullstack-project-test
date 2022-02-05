@@ -110,8 +110,20 @@ export default class PostResolver {
     }
 
     @Mutation(() => Boolean)
-    async deletePost(@Arg("id", () => Int) postId: number) {
-        const result = await Post.delete({ id: postId });
+    @UseMiddleware(isAuth)
+    async deletePost(
+        @Arg("id", () => Int) postId: number,
+        @Ctx() { req }: MyGraphQLContext
+    ) {
+        // NOT CASCADED WAY (remove onDelete: "CASCADE") from relation in Updoot
+        // const post = await Post.findOne(postId)
+        // if(!post) return false
+        // if (post.authorId != req.session.userId) throw new Error("not authorized")
+        // await Updoot.delete({postId})
+        // await Post.delete({id:postId})
+
+        const { userId } = req.session;
+        const result = await Post.delete({ id: postId, authorId: userId }); // using the userId we will only allow users to delete own posts
         const affected = result.affected && result.affected > 0;
         return affected;
     }

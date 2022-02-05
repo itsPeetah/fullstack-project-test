@@ -1,5 +1,5 @@
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, Stack } from "@chakra-ui/react";
+import { ChevronDownIcon, ChevronUpIcon, DeleteIcon } from "@chakra-ui/icons";
+import { Box, Button, Flex, IconButton, Stack } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Head from "next/head";
 import { useState } from "react";
@@ -7,18 +7,23 @@ import Layout from "../components/Layout";
 import StackPost from "../components/StackPost";
 import { UpdootSection } from "../components/UpdootSection";
 import { POST_QUERY_SIZE } from "../constants";
-import { usePostsQuery } from "../generated/graphql";
+import { useDeletePostMutation, usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 
 const Index = () => {
     const postQueryLimit = POST_QUERY_SIZE;
+
     const [postQueryVars, setPostQueryVars] = useState({
         limit: postQueryLimit,
         cursor: null as null | string,
     });
+
     const [{ data, fetching }] = usePostsQuery({
         variables: postQueryVars,
     });
+
+    const [, deletePost] = useDeletePostMutation();
+
     if (!fetching && !data) return <div>Could not download any posts...</div>;
 
     return (
@@ -33,20 +38,25 @@ const Index = () => {
                     <div>loading...</div>
                 ) : (
                     <Stack spacing={8} mb={8}>
-                        {data.posts.posts.map((p) => (
-                            <Flex key={p.id} p={5} shadow="md">
-                                <UpdootSection post={p} />
-                                <Box flexGrow={1}>
-                                    <StackPost
-                                        id={p.id}
-                                        title={p.title}
-                                        snippet={p.textSnippet}
-                                        author={p.author.username}
-                                        createdAt={p.createdAt}
-                                    />
-                                </Box>
-                            </Flex>
-                        ))}
+                        {data.posts.posts.map(
+                            (p) =>
+                                p && (
+                                    <Box key={p.id} p={5} shadow="md">
+                                        <StackPost post={p} />
+                                        <Flex>
+                                            <IconButton
+                                                ml="auto"
+                                                aria-label="Delete post"
+                                                color="crimson"
+                                                icon={<DeleteIcon />}
+                                                onClick={() => {
+                                                    deletePost({ id: p.id });
+                                                }}
+                                            />
+                                        </Flex>
+                                    </Box>
+                                )
+                        )}
                     </Stack>
                 )}
                 <Flex>

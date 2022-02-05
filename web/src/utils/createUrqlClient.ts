@@ -5,6 +5,7 @@ import { dedupExchange, Exchange, fetchExchange } from "urql";
 import { pipe, tap } from "wonka";
 import {
     CreatePostMutation,
+    DeletePostMutationVariables,
     LoginMutation,
     LogoutMutation,
     MeDocument,
@@ -170,6 +171,14 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                                     { id: postId, points: newPoints, voteStatus: value } as any
                                 );
                             }
+                        },
+                        deletePost: (_result, args, cache, info) => {
+                            // by default this would set the post as null and not really delete it
+                            // explanation https://youtu.be/I6ypD7qv3Z8?t=37931
+                            cache.invalidate({
+                                __typename: "Post",
+                                id: (args as DeletePostMutationVariables).id,
+                            });
                         },
                     },
                 },
