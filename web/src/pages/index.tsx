@@ -1,21 +1,14 @@
-import {
-    background,
-    Box,
-    Button,
-    Flex,
-    Heading,
-    Stack,
-    Text,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Head from "next/head";
 import { useState } from "react";
 import Layout from "../components/Layout";
+import { POST_QUERY_SIZE } from "../constants";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 
 const Index = () => {
-    const postQueryLimit = 10;
+    const postQueryLimit = POST_QUERY_SIZE;
     const [postQueryVars, setPostQueryVars] = useState({
         limit: postQueryLimit,
         cursor: null as null | string,
@@ -48,17 +41,16 @@ const Index = () => {
                                     </Box>
                                     <Box ml="auto">
                                         <Text align="right">
-                                            posted by
-                                            <b> {p.author.username} </b>
-                                            on{" "}
-                                            <b>
-                                                {new Date(
-                                                    parseInt(p.createdAt)
-                                                ).toDateString()}
-                                            </b>
+                                            by {p.author.username}
                                         </Text>
                                     </Box>
                                 </Flex>
+                                <Text fontStyle="italic" fontWeight={300}>
+                                    posted on{" "}
+                                    {new Date(
+                                        parseInt(p.createdAt)
+                                    ).toDateString()}
+                                </Text>
                                 <Text mt={4}>{p.textSnippet + "..."}</Text>
                             </Box>
                         ))}

@@ -4,13 +4,17 @@ import Router from "next/router";
 import { dedupExchange, Exchange, fetchExchange } from "urql";
 import { pipe, tap } from "wonka";
 import {
+    CreatePostMutation,
     LoginMutation,
     LogoutMutation,
     MeDocument,
     MeQuery,
+    PostsDocument,
+    PostsQuery,
     RegisterMutation,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
+import { POST_QUERY_SIZE } from "../constants";
 
 // URQL error handling "middleware"
 const errorExchange: Exchange =
@@ -112,6 +116,12 @@ export const createUrqlClient = (ssrExchange: any) => ({
                             result,
                             () => ({ me: null })
                         );
+                    },
+                    createPost: (_result, _args, cache, _info) => {
+                        cache.invalidate("Query", "posts", {
+                            limit: POST_QUERY_SIZE,
+                            // cursor: null,
+                        });
                     },
                 },
             },

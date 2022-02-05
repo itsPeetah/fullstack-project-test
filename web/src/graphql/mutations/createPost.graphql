@@ -1,5 +1,7 @@
 mutation CreatePost($options: PostTitleAndTextInput!) {
     createPost(options: $options) {
-        ...LightWeightPost
+        id
+        title
+        createdAt
     }
 }
