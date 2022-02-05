@@ -2,7 +2,9 @@ fragment LightWeightPost on Post {
     id
     title
     textSnippet
-    authorId
     points
     createdAt
+    author {
+        ...SlimUser
+    }
 }
