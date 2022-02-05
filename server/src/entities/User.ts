@@ -18,11 +18,11 @@ export default class User extends BaseEntity {
     id!: number;
 
     @CreateDateColumn()
-    @Field(() => Date)
+    @Field(() => String)
     createdAt: Date;
 
     @UpdateDateColumn()
-    @Field(() => Date)
+    @Field(() => String)
     updatedAt: Date;
 
     @Field(() => String)
