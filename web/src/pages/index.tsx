@@ -40,7 +40,25 @@ const Index = () => {
                     <Stack spacing={8} mb={8}>
                         {data.posts.posts.map((p) => (
                             <Box key={p.id} p={5} shadow="md">
-                                <Heading fontSize="xl">{p.title}</Heading>
+                                <Flex>
+                                    <Box mr="auto">
+                                        <Heading fontSize="xl">
+                                            {p.title}
+                                        </Heading>
+                                    </Box>
+                                    <Box ml="auto">
+                                        <Text align="right">
+                                            posted by
+                                            <b> {p.author.username} </b>
+                                            on{" "}
+                                            <b>
+                                                {new Date(
+                                                    parseInt(p.createdAt)
+                                                ).toDateString()}
+                                            </b>
+                                        </Text>
+                                    </Box>
+                                </Flex>
                                 <Text mt={4}>{p.textSnippet + "..."}</Text>
                             </Box>
                         ))}

@@ -5,6 +5,7 @@ fragment LightWeightPost on Post {
     points
     createdAt
     author {
-        ...SlimUser
+        id
+        username
     }
 }
