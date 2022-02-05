@@ -19,8 +19,6 @@ const Index = () => {
     const [{ data, fetching }] = usePostsQuery({
         variables: postQueryVars,
     });
-
-    console.log(data?.posts.posts);
     if (!fetching && !data) return <div>Could not download any posts...</div>;
 
     return (
