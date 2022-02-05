@@ -123,6 +123,7 @@ export default class PostResolver {
         // the user had previously voted on the post
         // and they are changing the value
         if (updoot && updoot.value !== actualValue) {
+            const dootMultiplier = updoot.value == 0 ? 1 : 2;
             await getConnection().transaction(async (transactionManager) => {
                 await transactionManager.query(
                     `
@@ -139,7 +140,7 @@ export default class PostResolver {
                 SET points = points + $1
                 WHERE id = $2;
                 `,
-                    [actualValue * 2, postId]
+                    [actualValue * dootMultiplier, postId]
                 );
             });
         } else if (updoot && updoot.value === actualValue) {
