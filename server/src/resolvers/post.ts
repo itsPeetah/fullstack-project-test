@@ -15,7 +15,6 @@ import {
 import Post from "../entities/Post";
 import { getConnection } from "typeorm";
 import { POST_QUERY_LIMIT } from "../constants";
-import Updoot from "../entities/Updoot";
 
 @InputType()
 class PostTitleAndTextInput {
@@ -35,14 +34,8 @@ class PaginatedPosts {
     hasMore: boolean;
 }
 
-Resolver((_of) => Post); // why the fuck does post crash things and user doesn't!!!???
+Resolver((_of) => Post);
 export default class PostResolver {
-    // This crashes everything => Moved to inline in Post class
-    // @FieldResolver(() => String)
-    // textSnippet(@Root() post: Post) {
-    //     return post.text.slice(0, POST_TEXT_SNIPPET_LEN);
-    // }
-
     @Query(() => Post, { nullable: true })
     async post(
         @Arg("postId", () => Int) postId: number
@@ -87,8 +80,6 @@ export default class PostResolver {
             replacements
         );
 
-        console.log(posts);
-
         return {
             posts: posts.slice(0, realLimit),
             hasMore: posts.length === actualQueryLimit,
@@ -125,17 +116,21 @@ export default class PostResolver {
         const { userId } = req.session;
 
         const isUpdoot = value >= 0;
-        value = isUpdoot ? 1 : -1;
-
-        await Updoot.insert({ userId, postId, value });
+        const actualValue = isUpdoot ? 1 : -1;
 
         getConnection().query(
             `
+            START TRANSACTION;
+            
+            INSERT INTO updoot ("userId", "postId", "value")
+            values (${userId}, ${postId}, ${actualValue});
+
             UPDATE post
-            SET points = points ${isUpdoot ? " + 1" : " - 1"}
-            WHERE id = $1
-        `,
-            [postId]
+            SET points = points + ${actualValue}
+            WHERE id = ${postId};
+            
+            COMMIT;
+        `
         );
 
         return true;
