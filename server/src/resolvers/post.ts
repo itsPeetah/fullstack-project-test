@@ -46,6 +46,7 @@ export default class PostResolver {
     async posts(
         @Arg("limit", () => Int) limit: number,
         @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+        // could use @Info() info object to conditionally build the query
     ): Promise<PaginatedPosts> {
         // 20 -> 21
         const realLimit = Math.min(POST_QUERY_LIMIT, limit);
@@ -57,15 +58,18 @@ export default class PostResolver {
 
         // SQL QUERY
         // json_build_object for RESHAPING THE DATA TO GIVE IT THE NESTED LEVELS GRAPHQL EXPECTS
-        // Beware what you query for: only specified id, username and email fields!!!
+        // Beware what you query for: only specified id, username and email fields!!! ** added dates but fields are still hardcoded!
         // "user" table must be referenced as "public.user" because it conflicts with postgres' default user table
+        // also the author will always be fetched but we are most certainly always going to need it.
         const posts = await getConnection().query(
             `
             SELECT p.*,
             json_build_object(
                 'id', u.id,
                 'username', u.username,
-                'email', u.email
+                'email', u.email,
+                'createdAt', u."createdAt",
+                'updatedAt', u."updatedAt"
                 ) author
             FROM post p INNER JOIN public.user u on u.id = p."authorId"
             ${cursor ? `WHERE p."createdAt" < $2` : ""}
