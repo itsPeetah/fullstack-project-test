@@ -139,12 +139,32 @@ export default class PostResolver {
                 SET points = points + $1
                 WHERE id = $2;
                 `,
+                    [actualValue * 2, postId]
+                );
+            });
+        } else if (updoot && updoot.value === actualValue) {
+            await getConnection().transaction(async (transactionManager) => {
+                await transactionManager.query(
+                    `
+                UPDATE updoot
+                SET value = $1
+                WHERE "postId" = $2 AND "userId" = $3;
+                `,
+                    [0, postId, userId]
+                );
+
+                await transactionManager.query(
+                    `    
+                UPDATE post
+                SET points = points - $1
+                WHERE id = $2;
+                `,
                     [actualValue, postId]
                 );
             });
         }
         // the user had not voted on the post before
-        else if (!updoot) {
+        else {
             await getConnection().transaction(async (transactionManager) => {
                 await transactionManager.query(
                     `
