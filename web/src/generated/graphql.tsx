@@ -157,6 +157,8 @@ export type RegularErrorFragment = { __typename?: 'FieldError', field: string, m
 
 export type SlimUserFragment = { __typename?: 'User', username: string, email: string, id: number };
 
+export type UpdootablePostFragment = { __typename?: 'Post', id: number, points: number };
+
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
   newPassword: Scalars['String'];
@@ -247,6 +249,12 @@ export const LightWeightPostFragmentDoc = gql`
     id
     username
   }
+}
+    `;
+export const UpdootablePostFragmentDoc = gql`
+    fragment UpdootablePost on Post {
+  id
+  points
 }
     `;
 export const ChangePasswordDocument = gql`
