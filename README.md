@@ -1,4 +1,4 @@
 # fullstack-project-test
  Following Ben Awad's Fullstack Lireddit Tutorial
 
-current ts: https://youtu.be/I6ypD7qv3Z8?t=28846
+current ts: https://youtu.be/I6ypD7qv3Z8?t=36248

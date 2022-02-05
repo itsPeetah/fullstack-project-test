@@ -67,7 +67,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
             userSelect="none"
         >
             <NextLink href="/">
-                <Link fontWeight={800}>website name</Link>
+                <Link fontWeight={800}>LiReddit but cyan</Link>
             </NextLink>
             {body}
         </Flex>
