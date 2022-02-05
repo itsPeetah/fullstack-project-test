@@ -15,6 +15,7 @@ import {
 import Post from "../entities/Post";
 import { getConnection } from "typeorm";
 import { POST_QUERY_LIMIT } from "../constants";
+import Updoot from "../entities/Updoot";
 
 @InputType()
 class PostTitleAndTextInput {
@@ -114,24 +115,55 @@ export default class PostResolver {
         @Ctx() { req }: MyGraphQLContext
     ) {
         const { userId } = req.session;
-
         const isUpdoot = value >= 0;
         const actualValue = isUpdoot ? 1 : -1;
 
-        getConnection().query(
-            `
-            START TRANSACTION;
-            
-            INSERT INTO updoot ("userId", "postId", "value")
-            values (${userId}, ${postId}, ${actualValue});
+        const updoot = await Updoot.findOne({ userId, postId }); // {where:{postId, userId}}
+        console.log(updoot);
+        // the user had previously voted on the post
+        // and they are changing the value
+        if (updoot && updoot.value !== actualValue) {
+            await getConnection().transaction(async (transactionManager) => {
+                await transactionManager.query(
+                    `
+                UPDATE updoot
+                SET value = $1
+                WHERE "postId" = $2 AND "userId" = $3;
+                `,
+                    [actualValue, postId, userId]
+                );
 
-            UPDATE post
-            SET points = points + ${actualValue}
-            WHERE id = ${postId};
-            
-            COMMIT;
-        `
-        );
+                await transactionManager.query(
+                    `    
+                UPDATE post
+                SET points = points + $1
+                WHERE id = $2;
+                `,
+                    [actualValue, postId]
+                );
+            });
+        }
+        // the user had not voted on the post before
+        else if (!updoot) {
+            await getConnection().transaction(async (transactionManager) => {
+                await transactionManager.query(
+                    `
+                INSERT INTO updoot ("userId", "postId", "value")
+                values ($1, $2, $3);
+                `,
+                    [userId, postId, actualValue]
+                );
+
+                await transactionManager.query(
+                    `    
+                UPDATE post
+                SET points = points + $1
+                WHERE id = $2;
+                `,
+                    [actualValue, postId]
+                );
+            });
+        }
 
         return true;
     }
