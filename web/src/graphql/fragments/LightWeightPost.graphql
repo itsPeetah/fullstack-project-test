@@ -1,9 +1,10 @@
 fragment LightWeightPost on Post {
     id
+    createdAt
     title
     textSnippet
     points
-    createdAt
+    voteStatus
     author {
         id
         username

@@ -88,6 +88,7 @@ export type Post = {
   textSnippet: Scalars['String'];
   title: Scalars['String'];
   updatedAt: Scalars['String'];
+  voteStatus?: Maybe<Scalars['Int']>;
 };
 
 export type PostTitleAndTextInput = {
@@ -151,13 +152,13 @@ export type UsernamePasswordInput = {
 
 export type BaseUserResponseFragment = { __typename?: 'UserResponse', user?: { __typename?: 'User', username: string, email: string, id: number } | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined };
 
-export type LightWeightPostFragment = { __typename?: 'Post', id: number, title: string, textSnippet: string, points: number, createdAt: string, author: { __typename?: 'User', id: number, username: string } };
+export type LightWeightPostFragment = { __typename?: 'Post', id: number, createdAt: string, title: string, textSnippet: string, points: number, voteStatus?: number | null | undefined, author: { __typename?: 'User', id: number, username: string } };
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
 export type SlimUserFragment = { __typename?: 'User', username: string, email: string, id: number };
 
-export type UpdootablePostFragment = { __typename?: 'Post', id: number, points: number };
+export type UpdootablePostFragment = { __typename?: 'Post', id: number, points: number, voteStatus?: number | null | undefined };
 
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
@@ -220,7 +221,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', id: number, title: string, textSnippet: string, points: number, createdAt: string, author: { __typename?: 'User', id: number, username: string } }> } };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', id: number, createdAt: string, title: string, textSnippet: string, points: number, voteStatus?: number | null | undefined, author: { __typename?: 'User', id: number, username: string } }> } };
 
 export const SlimUserFragmentDoc = gql`
     fragment SlimUser on User {
@@ -249,10 +250,11 @@ ${RegularErrorFragmentDoc}`;
 export const LightWeightPostFragmentDoc = gql`
     fragment LightWeightPost on Post {
   id
+  createdAt
   title
   textSnippet
   points
-  createdAt
+  voteStatus
   author {
     id
     username
@@ -263,6 +265,7 @@ export const UpdootablePostFragmentDoc = gql`
     fragment UpdootablePost on Post {
   id
   points
+  voteStatus
 }
     `;
 export const ChangePasswordDocument = gql`

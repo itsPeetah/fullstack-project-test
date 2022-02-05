@@ -1,4 +1,5 @@
 fragment UpdootablePost on Post {
     id
     points
+    voteStatus
 }

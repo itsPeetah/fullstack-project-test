@@ -20,6 +20,7 @@ const Index = () => {
         variables: postQueryVars,
     });
 
+    console.log(data?.posts.posts);
     if (!fetching && !data) return <div>Could not download any posts...</div>;
 
     return (
@@ -56,9 +57,7 @@ const Index = () => {
                             onClick={() => {
                                 setPostQueryVars({
                                     limit: postQueryLimit,
-                                    cursor: data.posts.posts[
-                                        data.posts.posts.length - 1
-                                    ].createdAt,
+                                    cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
                                 });
                             }}
                             mx="auto"

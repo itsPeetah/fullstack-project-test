@@ -35,7 +35,7 @@ class PaginatedPosts {
     hasMore: boolean;
 }
 
-Resolver((_of) => Post);
+Resolver(Post);
 export default class PostResolver {
     @Query(() => Post, { nullable: true })
     async post(
@@ -47,16 +47,17 @@ export default class PostResolver {
     @Query(() => PaginatedPosts)
     async posts(
         @Arg("limit", () => Int) limit: number,
-        @Arg("cursor", () => String, { nullable: true }) cursor: string | null
-        // could use @Info() info object to conditionally build the query
+        @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+        @Ctx() { req }: MyGraphQLContext
     ): Promise<PaginatedPosts> {
-        // 20 -> 21
-        const realLimit = Math.min(POST_QUERY_LIMIT, limit);
-        const actualQueryLimit = realLimit + 1;
+        const actualLimit = Math.min(POST_QUERY_LIMIT, limit);
+        const actualLimitPlusOne = actualLimit + 1;
 
-        // QUERY PARAMS
-        const replacements: any[] = [actualQueryLimit];
-        if (cursor) replacements.push(new Date(parseInt(cursor)));
+        const replacements: any[] = [actualLimitPlusOne, req.session.userId];
+
+        if (cursor) {
+            replacements.push(new Date(parseInt(cursor)));
+        }
 
         // SQL QUERY
         // json_build_object for RESHAPING THE DATA TO GIVE IT THE NESTED LEVELS GRAPHQL EXPECTS
@@ -65,25 +66,31 @@ export default class PostResolver {
         // also the author will always be fetched but we are most certainly always going to need it.
         const posts = await getConnection().query(
             `
-            SELECT p.*,
-            json_build_object(
-                'id', u.id,
-                'username', u.username,
-                'email', u.email,
-                'createdAt', u."createdAt",
-                'updatedAt', u."updatedAt"
-                ) author
-            FROM post p INNER JOIN public.user u on u.id = p."authorId"
-            ${cursor ? `WHERE p."createdAt" < $2` : ""}
-            ORDER BY p."createdAt" DESC
-            LIMIT $1
-            `,
+          select p.*,
+          json_build_object(
+            'id', u.id,
+            'username', u.username,
+            'email', u.email,
+            'createdAt', u."createdAt",
+            'updatedAt', u."updatedAt"
+            ) author,
+          ${
+              req.session.userId
+                  ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"' // $2 is going to be the user's id
+                  : '$2 as "voteStatus"' // $2 is going to be null -> done to be sure I always pass the replacements in the correct order
+          }
+          from post p
+          inner join public.user u on u.id = p."authorId"
+          ${cursor ? `where p."createdAt" < $3` : ""}
+          order by p."createdAt" DESC
+          limit $1
+          `,
             replacements
         );
 
         return {
-            posts: posts.slice(0, realLimit),
-            hasMore: posts.length === actualQueryLimit,
+            posts: posts.slice(0, actualLimit),
+            hasMore: posts.length === actualLimitPlusOne,
         };
     }
 
@@ -114,78 +121,55 @@ export default class PostResolver {
         @Arg("value", () => Int) value: number,
         @Ctx() { req }: MyGraphQLContext
     ) {
-        const { userId } = req.session;
-        const isUpdoot = value >= 0;
+        const isUpdoot = value > 0;
         const actualValue = isUpdoot ? 1 : -1;
+        const { userId } = req.session;
 
         const updoot = await Updoot.findOne({ userId, postId }); // {where:{postId, userId}}
-        console.log(updoot);
-        // the user had previously voted on the post
-        // and they are changing the value
+
+        // the user has voted on the post before
+        // and they are changing their vote
         if (updoot && updoot.value !== actualValue) {
-            const dootMultiplier = updoot.value == 0 ? 1 : 2;
-            await getConnection().transaction(async (transactionManager) => {
-                await transactionManager.query(
+            await getConnection().transaction(async (tm) => {
+                await tm.query(
                     `
-                UPDATE updoot
-                SET value = $1
-                WHERE "postId" = $2 AND "userId" = $3;
-                `,
+                    UPDATE updoot
+                    SET value = $1
+                    WHERE "postId" = $2 AND "userId" = $3
+                        `,
                     [actualValue, postId, userId]
                 );
 
-                await transactionManager.query(
-                    `    
-                UPDATE post
-                SET points = points + $1
-                WHERE id = $2;
-                `,
-                    [actualValue * dootMultiplier, postId]
+                await tm.query(
+                    `
+                    UPDATE post
+                    SET points = points + $1
+                    WHERE id = $2
+                    `,
+                    [2 * actualValue, postId]
                 );
             });
-        } else if (updoot && updoot.value === actualValue) {
-            await getConnection().transaction(async (transactionManager) => {
-                await transactionManager.query(
+        } else if (!updoot) {
+            // has never voted before
+            await getConnection().transaction(async (tm) => {
+                await tm.query(
                     `
-                UPDATE updoot
-                SET value = $1
-                WHERE "postId" = $2 AND "userId" = $3;
-                `,
-                    [0, postId, userId]
-                );
-
-                await transactionManager.query(
-                    `    
-                UPDATE post
-                SET points = points - $1
-                WHERE id = $2;
-                `,
-                    [actualValue, postId]
-                );
-            });
-        }
-        // the user had not voted on the post before
-        else {
-            await getConnection().transaction(async (transactionManager) => {
-                await transactionManager.query(
-                    `
-                INSERT INTO updoot ("userId", "postId", "value")
-                values ($1, $2, $3);
-                `,
+                    INSERT INTO updoot ("userId", "postId", value)
+                    VALUES ($1, $2, $3)
+                        `,
                     [userId, postId, actualValue]
                 );
 
-                await transactionManager.query(
-                    `    
-                UPDATE post
-                SET points = points + $1
-                WHERE id = $2;
-                `,
+                await tm.query(
+                    `
+                    UPDATE post
+                    SET points = points + $1
+                    WHERE id = $2
+                    `,
                     [actualValue, postId]
                 );
             });
         }
-
         return true;
     }
 }

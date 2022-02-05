@@ -12,9 +12,10 @@ import {
     PostsDocument,
     PostsQuery,
     RegisterMutation,
+    VoteMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import { POST_QUERY_SIZE } from "../constants";
+import gql from "graphql-tag";
 
 // URQL error handling "middleware"
 const errorExchange: Exchange =
@@ -36,9 +37,7 @@ export const cursorPagination = (): Resolver => {
         const { parentKey: entityKey, fieldName } = info;
 
         const allFields = cache.inspectFields(entityKey);
-        const fieldInfos = allFields.filter(
-            (info) => info.fieldName === fieldName
-        );
+        const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
         const size = fieldInfos.length;
         if (size === 0) {
             return undefined;
@@ -119,18 +118,42 @@ export const createUrqlClient = (ssrExchange: any) => ({
                     },
                     createPost: (_result, _args, cache, _info) => {
                         const allFields = cache.inspectFields("Query");
-                        const fieldInfos = allFields.filter(
-                            (info) => info.fieldName === "posts"
-                        );
+                        const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
                         // invalidating the cache for each specific query
                         // the posts query is called with different arguments when loading more / paginating
                         fieldInfos.forEach((fi) => {
-                            cache.invalidate(
-                                "Query",
-                                "posts",
-                                fi.arguments || {}
-                            );
+                            cache.invalidate("Query", "posts", fi.arguments || {});
                         });
+                    },
+                    vote: (_result, args, cache, info) => {
+                        const { postId, value } = args as VoteMutationVariables;
+                        const data = cache.readFragment(
+                            gql`
+                                fragment _ on Post {
+                                    id
+                                    points
+                                    voteStatus
+                                }
+                            `,
+                            { id: postId } as any
+                        );
+
+                        if (data) {
+                            if (data.voteStatus === value) {
+                                return;
+                            }
+                            const newPoints =
+                                (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
+                            cache.writeFragment(
+                                gql`
+                                    fragment __ on Post {
+                                        points
+                                        voteStatus
+                                    }
+                                `,
+                                { id: postId, points: newPoints, voteStatus: value } as any
+                            );
+                        }
                     },
                 },
             },
