@@ -57,7 +57,7 @@ export default class PostResolver {
         // "user" table must be referenced as "public.user" because it conflicts with postgres' default user table
         const posts = await getConnection().query(
             `
-            SELECT p.*, u.username
+            SELECT p.*, u.*
             FROM post p INNER JOIN public.user u on u.id = p."authorId"
             ${cursor ? `WHERE p."createdAt" < $2` : ""}
             ORDER BY p."createdAt" DESC
@@ -79,13 +79,13 @@ export default class PostResolver {
         //     }); // add where if cursor has been passed
 
         // const qRes = await qb.getMany();
-        const qRes = posts;
+        // const qRes = posts;
 
-        console.log(qRes);
+        console.log(posts);
 
         return {
-            posts: qRes.slice(0, realLimit),
-            hasMore: qRes.length === actualQueryLimit,
+            posts: posts.slice(0, realLimit),
+            hasMore: posts.length === actualQueryLimit,
         };
     }
 
