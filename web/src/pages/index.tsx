@@ -1,8 +1,11 @@
-import { Box, Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
+import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { Box, Button, Flex, Stack } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Head from "next/head";
 import { useState } from "react";
 import Layout from "../components/Layout";
+import StackPost from "../components/StackPost";
+import { UpdootSection } from "../components/UpdootSection";
 import { POST_QUERY_SIZE } from "../constants";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
@@ -32,27 +35,18 @@ const Index = () => {
                 ) : (
                     <Stack spacing={8} mb={8}>
                         {data.posts.posts.map((p) => (
-                            <Box key={p.id} p={5} shadow="md">
-                                <Flex>
-                                    <Box mr="auto">
-                                        <Heading fontSize="xl">
-                                            {p.title}
-                                        </Heading>
-                                    </Box>
-                                    <Box ml="auto">
-                                        <Text align="right">
-                                            by {p.author.username}
-                                        </Text>
-                                    </Box>
-                                </Flex>
-                                <Text fontStyle="italic" fontWeight={300}>
-                                    posted on{" "}
-                                    {new Date(
-                                        parseInt(p.createdAt)
-                                    ).toDateString()}
-                                </Text>
-                                <Text mt={4}>{p.textSnippet + "..."}</Text>
-                            </Box>
+                            <Flex key={p.id} p={5} shadow="md">
+                                <UpdootSection points={p.points} />
+                                <Box flexGrow={1}>
+                                    <StackPost
+                                        key={p.id}
+                                        title={p.title}
+                                        snippet={p.textSnippet}
+                                        author={p.author.username}
+                                        createdAt={p.createdAt}
+                                    />
+                                </Box>
+                            </Flex>
                         ))}
                     </Stack>
                 )}
