@@ -38,7 +38,7 @@ const Index = () => {
                                 <UpdootSection post={p} />
                                 <Box flexGrow={1}>
                                     <StackPost
-                                        key={p.id}
+                                        id={p.id}
                                         title={p.title}
                                         snippet={p.textSnippet}
                                         author={p.author.username}

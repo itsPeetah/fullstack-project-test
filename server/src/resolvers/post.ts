@@ -39,9 +39,11 @@ Resolver(Post);
 export default class PostResolver {
     @Query(() => Post, { nullable: true })
     async post(
-        @Arg("postId", () => Int) postId: number
+        @Arg("id", () => Int) postId: number
     ): Promise<Post | null | undefined> {
-        return await Post.findOne(postId);
+        // {relations: [...]} -> TypeORM will authomatically do the SQL join for us :$
+        // could fetch voteStatus with a complex query...maybe I'll make a field resolver for it
+        return await Post.findOne(postId, { relations: ["author"] });
     }
 
     @Query(() => PaginatedPosts)

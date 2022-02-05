@@ -1,9 +1,10 @@
-fragment LightWeightPost on Post {
+fragment FullPost on Post {
     id
-    createdAt
     title
-    textSnippet
+    text
     points
+    createdAt
+    updatedAt
     voteStatus
     author {
         id
