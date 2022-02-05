@@ -51,13 +51,22 @@ export default class PostResolver {
         const realLimit = Math.min(POST_QUERY_LIMIT, limit);
         const actualQueryLimit = realLimit + 1;
 
+        // QUERY PARAMS
         const replacements: any[] = [actualQueryLimit];
         if (cursor) replacements.push(new Date(parseInt(cursor)));
 
+        // SQL QUERY
+        // json_build_object for RESHAPING THE DATA TO GIVE IT THE NESTED LEVELS GRAPHQL EXPECTS
+        // Beware what you query for: only specified id, username and email fields!!!
         // "user" table must be referenced as "public.user" because it conflicts with postgres' default user table
         const posts = await getConnection().query(
             `
-            SELECT p.*, u.*
+            SELECT p.*,
+            json_build_object(
+                'id', u.id,
+                'username', u.username,
+                'email', u.email
+                ) author
             FROM post p INNER JOIN public.user u on u.id = p."authorId"
             ${cursor ? `WHERE p."createdAt" < $2` : ""}
             ORDER BY p."createdAt" DESC
@@ -65,21 +74,6 @@ export default class PostResolver {
             `,
             replacements
         );
-
-        // SORTING BY NEW
-        // const qb = getConnection()
-        //     .getRepository(Post)
-        //     .createQueryBuilder("p")
-        //     .innerJoinAndSelect("p.author", "u", 'u.id = "p.authorId"')
-        //     .orderBy('p."createdAt"', "DESC") // note the quotes. column name requires "" for postgres, '' used to wrap them into a string
-        //     .take(actualQueryLimit); // take(..) better than limit(..) for pagination (from typeorm docs)
-        // if (cursor)
-        //     qb.where('p."createdAt" < :cursor', {
-        //         cursor: new Date(parseInt(cursor)),
-        //     }); // add where if cursor has been passed
-
-        // const qRes = await qb.getMany();
-        // const qRes = posts;
 
         console.log(posts);
 
