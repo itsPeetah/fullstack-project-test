@@ -38,7 +38,7 @@ const main = async () => {
 
     app.use(
         cors({
-            origin: "http://localhost:3000", // frontend web server address
+            origin: process.env.CORS_ORIGIN, // frontend web server address
             credentials: true,
         })
     );
@@ -57,6 +57,7 @@ const main = async () => {
                 sameSite: "lax",
                 httpOnly: true,
                 secure: __prod__,
+                // domain: __prod__ ? ".codeponder.com" : undefined
             },
             secret: process.env.SESSION_SECRET,
             resave: false,
