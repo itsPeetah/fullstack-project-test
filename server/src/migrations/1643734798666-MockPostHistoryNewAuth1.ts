@@ -3,8 +3,8 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class MockPostHistoryNewAuth11643734798666
     implements MigrationInterface
 {
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        // await queryRunner.query(`insert into post (title, text, "authorId", "createdAt") values ('Five Angles on Murder', 'Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus.', 1, '2021-05-07T23:37:09Z');
+    public async up(_queryRunner: QueryRunner): Promise<void> {
+        // await _queryRunner.query(`insert into post (title, text, "authorId", "createdAt") values ('Five Angles on Murder', 'Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus.', 1, '2021-05-07T23:37:09Z');
         // insert into post (title, text, "authorId", "createdAt") values ('Mist, The', 'Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem.
         
         // Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit.
