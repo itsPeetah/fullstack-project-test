@@ -73,7 +73,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
     if (isServer()) {
         // This is only going to be available on the server
         // Crashes in the browser!!!
-        cookie = ctx.req.headers.cookie;
+        cookie = ctx?.req?.headers?.cookie;
     }
 
     return {
