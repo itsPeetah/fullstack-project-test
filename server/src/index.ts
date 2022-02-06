@@ -21,7 +21,7 @@ import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
     // Initialize database connection
-    const _orm = await createConnection({
+    const orm = await createConnection({
         type: "postgres",
         url:process.env.DATABASE_URL,
         logging: true,
@@ -29,7 +29,9 @@ const main = async () => {
         migrations: [path.join(__dirname, "./migrations/*")],
         entities: [User, Post, Updoot],
     });
-    await _orm.runMigrations();
+    
+    if(__prod__)
+        await orm.runMigrations();
 
     // Post.delete({});
 
