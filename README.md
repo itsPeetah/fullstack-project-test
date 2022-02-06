@@ -2,7 +2,7 @@
 Following Ben Awad's Fullstack Lireddit Tutorial
 
 ## In progress
-current ts: https://youtu.be/I6ypD7qv3Z8?t=42268
+current ts: https://youtu.be/I6ypD7qv3Z8?t=44653
 
 
 # Stack
