@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import "dotenv-safe/config"
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -22,9 +23,7 @@ const main = async () => {
     // Initialize database connection
     const _orm = await createConnection({
         type: "postgres",
-        database: "lireddit",
-        username: "postgres",
-        password: "postgres",
+        url:process.env.DATABASE_URL,
         logging: true,
         synchronize: true,
         migrations: [path.join(__dirname, "./migrations/*")],
@@ -46,7 +45,7 @@ const main = async () => {
 
     // Initialize redis for sessions
     const RedisStore = connectRedis(session);
-    const redis = new Redis(); // default options
+    const redis = new Redis(process.env.REDIS_URL); // default options
 
     // Initialize session cookies
     app.use(
@@ -59,7 +58,7 @@ const main = async () => {
                 httpOnly: true,
                 secure: __prod__,
             },
-            secret: "kadfgkasfkasdofkapkdpofkkadfgkasfkasdofkapkdpofk",
+            secret: process.env.SESSION_SECRET,
             resave: false,
             saveUninitialized: false,
         })
@@ -90,7 +89,7 @@ const main = async () => {
     });
 
     // Start express app
-    app.listen(4000, () => console.log("Express server started on port 4000."));
+    app.listen(parseInt(process.env.PORT), () => console.log("Express server started on port 4000."));
 };
 
 main();
