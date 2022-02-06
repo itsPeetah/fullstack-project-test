@@ -52,7 +52,9 @@ export default class Post extends BaseEntity {
 
     @Field(() => User)
     @ManyToOne(() => User, (user) => user.posts)
-    author: User;
+    async author(): Promise<User | undefined> {
+        return await User.findOne(this.authorId);
+    }
 
     @OneToMany(() => Updoot, (updoot) => updoot.post)
     updoots: Updoot[];
