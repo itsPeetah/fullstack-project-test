@@ -52,6 +52,7 @@ export const EditPost: React.FC<{}> = ({}) => {
                         console.log("error:", error);
                         // send user to the post's page
                         if (!error) router.push(`/post/${data.post!.id}`);
+                        // if (!error) router.back(); // takes me back to the page I was on before
                     }}
                 >
                     {({ isSubmitting }) => (
