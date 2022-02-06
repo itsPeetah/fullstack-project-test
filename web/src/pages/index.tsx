@@ -9,6 +9,7 @@ import NextLink from "next/link";
 import { POST_QUERY_SIZE } from "../constants";
 import { useDeletePostMutation, useMeQuery, usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import PostButtons from "../components/PostButtons";
 
 const Index = () => {
     const postQueryLimit = POST_QUERY_SIZE;
@@ -49,25 +50,7 @@ const Index = () => {
                                             {/* Only show the edit and delete buttons for posts the user owns */}
                                             {meData?.me?.id === p.author.id && (
                                                 <Box ml="auto">
-                                                    <NextLink
-                                                        href="/post/edit/[id]"
-                                                        as={`/post/edit/${p.id}`}
-                                                    >
-                                                        <Link>
-                                                            <IconButton
-                                                                aria-label="Edit post"
-                                                                icon={<EditIcon />}
-                                                            />
-                                                        </Link>
-                                                    </NextLink>
-                                                    <IconButton
-                                                        aria-label="Delete post"
-                                                        // color="crimson"
-                                                        icon={<DeleteIcon />}
-                                                        onClick={() => {
-                                                            deletePost({ id: p.id });
-                                                        }}
-                                                    />
+                                                    <PostButtons postId={p.id} />
                                                 </Box>
                                             )}
                                         </Flex>

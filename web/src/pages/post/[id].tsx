@@ -1,17 +1,20 @@
 import { Box, Divider, Flex, Heading, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import React from "react";
 import Layout from "../../components/Layout";
+import PostButtons from "../../components/PostButtons";
 import UpdootSection from "../../components/UpdootSection";
 import Wrapper from "../../components/Wrapper";
-import { usePostQuery } from "../../generated/graphql";
+import { useMeQuery, usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { useGetIntId } from "../../utils/useGetIntId";
 
 interface postPageProps {}
 
 export const PostPage: React.FC<postPageProps> = ({}) => {
+    const router = useRouter();
     const postId = useGetIntId();
     const [{ data, fetching, error }] = usePostQuery({
         pause: postId === -1,
@@ -19,6 +22,8 @@ export const PostPage: React.FC<postPageProps> = ({}) => {
             id: postId,
         },
     });
+
+    const [{ data: meData }] = useMeQuery();
 
     if (fetching)
         return (
@@ -40,7 +45,8 @@ export const PostPage: React.FC<postPageProps> = ({}) => {
                 </Layout>
             </>
         );
-    if (!data?.post)
+    if (!data?.post) {
+        router.push("/");
         return (
             <>
                 <Head>
@@ -51,6 +57,7 @@ export const PostPage: React.FC<postPageProps> = ({}) => {
                 </Layout>
             </>
         );
+    }
     return (
         <>
             <Head>
@@ -74,9 +81,18 @@ export const PostPage: React.FC<postPageProps> = ({}) => {
                                 <Heading my={2}>{data.post.title}</Heading>
                                 <Text>by {data.post.author.username}</Text>
                             </Box>
-                            <UpdootSection post={data.post} />
+                            <Flex
+                                flexDirection="column"
+                                alignItems="center"
+                                justifyItems={"center"}
+                            >
+                                <UpdootSection post={data.post} />
+                                {meData?.me?.id === data.post.author.id && (
+                                    <PostButtons postId={data.post.id} />
+                                )}
+                            </Flex>
                         </Flex>
-                        <Divider my={6} borderWidth="1px" borderColor={"cyan.200"} />
+                        <Divider my={4} borderWidth="1px" borderColor={"cyan.200"} />
 
                         <Text>{data?.post?.text}</Text>
                     </Box>
