@@ -45,9 +45,12 @@ export const EditPost: React.FC<{}> = ({}) => {
                 <Formik
                     initialValues={{ title: data.post.title, text: data.post.text }}
                     onSubmit={async (values, { setErrors }) => {
+                        // The update post mutation returns a post
+                        // this will update the cache automatically based on the post id
                         const { error } = await updatePost({ id: data.post!.id, options: values });
-                        // send user to home page, where new post should now appear
+
                         console.log("error:", error);
+                        // send user to the post's page
                         if (!error) router.push(`/post/${data.post!.id}`);
                     }}
                 >
