@@ -2,8 +2,7 @@
 Following Ben Awad's Fullstack Lireddit Tutorial
 
 ## In progress
-current ts: https://youtu.be/I6ypD7qv3Z8?t=44653
-
+current ts: https://youtu.be/I6ypD7qv3Z8?t=44650
 
 # Stack
 
@@ -13,6 +12,11 @@ current ts: https://youtu.be/I6ypD7qv3Z8?t=44653
 - GraphQL w/ Apollo
 - TypeORM w/ postgresql
 - Redis
+
+Depoloyment
+- Docker
+- Dokku on Digitalocean
+  - Postgres and redis containers
 
 ### Frontend
 - NodeJs
