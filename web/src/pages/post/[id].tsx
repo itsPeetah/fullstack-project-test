@@ -5,13 +5,20 @@ import React from "react";
 import Layout from "../../components/Layout";
 import UpdootSection from "../../components/UpdootSection";
 import Wrapper from "../../components/Wrapper";
+import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
-import { useGetPostFromUrl } from "../../utils/useGetPostFromUrl";
+import { useGetIntId } from "../../utils/useGetIntId";
 
 interface postPageProps {}
 
 export const PostPage: React.FC<postPageProps> = ({}) => {
-    const [{ data, fetching, error }] = useGetPostFromUrl();
+    const postId = useGetIntId();
+    const [{ data, fetching, error }] = usePostQuery({
+        pause: postId === -1,
+        variables: {
+            id: postId,
+        },
+    });
 
     if (fetching)
         return (
