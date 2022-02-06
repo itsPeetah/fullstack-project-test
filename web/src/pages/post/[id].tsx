@@ -8,18 +8,12 @@ import UpdootSection from "../../components/UpdootSection";
 import Wrapper from "../../components/Wrapper";
 import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
+import { useGetPostFromUrl } from "../../utils/useGetPostFromUrl";
 
 interface postPageProps {}
 
 export const PostPage: React.FC<postPageProps> = ({}) => {
-    const router = useRouter();
-    const intPostId = typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
-    const [{ data, fetching, error }, post] = usePostQuery({
-        pause: intPostId === -1,
-        variables: {
-            id: intPostId,
-        },
-    });
+    const [{ data, fetching, error }, post] = useGetPostFromUrl();
 
     if (fetching)
         return (
