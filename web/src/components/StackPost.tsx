@@ -1,5 +1,4 @@
-import { ChevronUpIcon, ChevronDownIcon, DeleteIcon } from "@chakra-ui/icons";
-import { Box, Flex, Heading, IconButton, Link, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Link, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import React from "react";
 import { PostSnippetFragment } from "../generated/graphql";

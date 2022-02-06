@@ -1,7 +1,7 @@
 import { Button, Box, Link } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import React, { useState } from "react";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
@@ -10,7 +10,7 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 import NextLink from "next/link";
 
 export const ForgotPassword: React.FC<{}> = ({}) => {
-    const router = useRouter();
+    // const router = useRouter();
     const [{}, forgotPassword] = useForgotPasswordMutation();
     const [emailSent, setEmailSent] = useState(false);
 
@@ -47,9 +47,7 @@ export const ForgotPassword: React.FC<{}> = ({}) => {
                             </Box>
                             <Box w="100%" mt="4">
                                 <NextLink href="/login">
-                                    <Link color="blue.500">
-                                        Go back to login...
-                                    </Link>
+                                    <Link color="blue.500">Go back to login...</Link>
                                 </NextLink>
                             </Box>
                         </Form>

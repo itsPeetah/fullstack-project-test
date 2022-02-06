@@ -1,15 +1,13 @@
-import { ChevronDownIcon, ChevronUpIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, IconButton, Link, Stack } from "@chakra-ui/react";
+import { Box, Button, Flex, Stack } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Head from "next/head";
 import { useState } from "react";
 import Layout from "../components/Layout";
+import PostButtons from "../components/PostButtons";
 import StackPost from "../components/StackPost";
-import NextLink from "next/link";
 import { POST_QUERY_SIZE } from "../constants";
 import { useDeletePostMutation, useMeQuery, usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import PostButtons from "../components/PostButtons";
 
 const Index = () => {
     const postQueryLimit = POST_QUERY_SIZE;
