@@ -1,5 +1,5 @@
 import { stringifyVariables } from "@urql/core";
-import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
+import { cacheExchange, Resolver, Cache } from "@urql/exchange-graphcache";
 import Router from "next/router";
 import { dedupExchange, Exchange, fetchExchange } from "urql";
 import { pipe, tap } from "wonka";
@@ -68,6 +68,16 @@ export const cursorPagination = (): Resolver => {
     };
 };
 
+const invalidateAllPosts = (cache: Cache) => {
+    const allFields = cache.inspectFields("Query");
+    const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
+    // invalidating the cache for each specific query
+    // the posts query is called with different arguments when loading more / paginating
+    fieldInfos.forEach((fi) => {
+        cache.invalidate("Query", "posts", fi.arguments || {});
+    });
+};
+
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
     let cookie = "";
     if (isServer()) {
@@ -109,6 +119,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                                     else return { me: theResult.login.user };
                                 }
                             );
+                            invalidateAllPosts(cache);
                         },
 
                         register: (result, _args, cache, _info) => {
@@ -132,15 +143,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                             );
                         },
                         createPost: (_result, _args, cache, _info) => {
-                            const allFields = cache.inspectFields("Query");
-                            const fieldInfos = allFields.filter(
-                                (info) => info.fieldName === "posts"
-                            );
-                            // invalidating the cache for each specific query
-                            // the posts query is called with different arguments when loading more / paginating
-                            fieldInfos.forEach((fi) => {
-                                cache.invalidate("Query", "posts", fi.arguments || {});
-                            });
+                            invalidateAllPosts(cache);
                         },
                         vote: (_result, args, cache, info) => {
                             const { postId, value } = args as VoteMutationVariables;
