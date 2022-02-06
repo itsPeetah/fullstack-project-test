@@ -1,13 +1,13 @@
-import { ChevronDownIcon, ChevronUpIcon, DeleteIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, IconButton, Stack } from "@chakra-ui/react";
+import { ChevronDownIcon, ChevronUpIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { Box, Button, Flex, IconButton, Link, Stack } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Head from "next/head";
 import { useState } from "react";
 import Layout from "../components/Layout";
 import StackPost from "../components/StackPost";
-import { UpdootSection } from "../components/UpdootSection";
+import NextLink from "next/link";
 import { POST_QUERY_SIZE } from "../constants";
-import { useDeletePostMutation, usePostsQuery } from "../generated/graphql";
+import { useDeletePostMutation, useMeQuery, usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 
 const Index = () => {
@@ -21,6 +21,8 @@ const Index = () => {
     const [{ data, fetching }] = usePostsQuery({
         variables: postQueryVars,
     });
+
+    const [{ data: meData }] = useMeQuery();
 
     const [, deletePost] = useDeletePostMutation();
 
@@ -44,15 +46,30 @@ const Index = () => {
                                     <Box key={p.id} p={5} shadow="md">
                                         <StackPost post={p} />
                                         <Flex>
-                                            <IconButton
-                                                ml="auto"
-                                                aria-label="Delete post"
-                                                color="crimson"
-                                                icon={<DeleteIcon />}
-                                                onClick={() => {
-                                                    deletePost({ id: p.id });
-                                                }}
-                                            />
+                                            {/* Only show the edit and delete buttons for posts the user owns */}
+                                            {meData?.me?.id === p.author.id && (
+                                                <Box ml="auto">
+                                                    <NextLink
+                                                        href="/post/edit/[id]"
+                                                        as={`/post/edit/${p.id}`}
+                                                    >
+                                                        <Link>
+                                                            <IconButton
+                                                                aria-label="Edit post"
+                                                                icon={<EditIcon />}
+                                                            />
+                                                        </Link>
+                                                    </NextLink>
+                                                    <IconButton
+                                                        aria-label="Delete post"
+                                                        // color="crimson"
+                                                        icon={<DeleteIcon />}
+                                                        onClick={() => {
+                                                            deletePost({ id: p.id });
+                                                        }}
+                                                    />
+                                                </Box>
+                                            )}
                                         </Flex>
                                     </Box>
                                 )

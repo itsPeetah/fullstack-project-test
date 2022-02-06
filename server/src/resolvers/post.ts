@@ -128,6 +128,35 @@ export default class PostResolver {
         return affected;
     }
 
+    @Mutation(() => Post, { nullable: true })
+    @UseMiddleware(isAuth)
+    async updatePost(
+        @Arg("id", () => Int) postId: number,
+        @Arg("options") options: PostTitleAndTextInput,
+        @Ctx() { req }: MyGraphQLContext
+    ): Promise<Post | null> {
+        const { userId } = req.session;
+
+        const post = await Post.findOne(postId);
+        if (!post) return null;
+
+        const newTitle = options.title.length > 1 ? options.title : post.title;
+        const newText = options.text.length > 1 ? options.text : post.text;
+
+        const updateResult = await getConnection()
+            .createQueryBuilder()
+            .update(Post)
+            .set({ title: newTitle, text: newText })
+            .where('id = :id AND "authorId" = :authorId', {
+                id: postId,
+                authorId: userId,
+            })
+            .returning("*")
+            .execute();
+
+        return updateResult.raw[0] ?? null;
+    }
+
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
     async vote(
