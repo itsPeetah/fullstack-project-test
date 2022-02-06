@@ -1,19 +1,17 @@
-import { Box, BreadcrumbSeparator, Divider, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Divider, Flex, Heading, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import React from "react";
 import Layout from "../../components/Layout";
 import UpdootSection from "../../components/UpdootSection";
 import Wrapper from "../../components/Wrapper";
-import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { useGetPostFromUrl } from "../../utils/useGetPostFromUrl";
 
 interface postPageProps {}
 
 export const PostPage: React.FC<postPageProps> = ({}) => {
-    const [{ data, fetching, error }, post] = useGetPostFromUrl();
+    const [{ data, fetching, error }] = useGetPostFromUrl();
 
     if (fetching)
         return (
