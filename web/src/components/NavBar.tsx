@@ -30,7 +30,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         );
     } else {
         body = (
-            <Box ml="auto" display="flex">
+            <Flex ml="auto" display="flex">
                 <Box mr="4">
                     <NextLink href="/create-post">
                         <Link>New Post</Link>
@@ -49,7 +49,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                 >
                     Logout from {data.me.username}
                 </Button>
-            </Box>
+            </Flex>
         );
     }
 
