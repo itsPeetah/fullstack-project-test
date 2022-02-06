@@ -3,7 +3,6 @@ import {
     Arg,
     Ctx,
     Field,
-    FieldResolver,
     InputType,
     Int,
     Mutation,
@@ -38,12 +37,23 @@ class PaginatedPosts {
 
 Resolver(Post);
 export default class PostResolver {
+    // THIS DOESN'T FUCKING WORK AND I DON'T KNOW WHY
+    // @FieldResolver(() => User)
+    // async author(
+    //     @Root() post: Post,
+    //     @Ctx() { userLoader }: MyGraphQLContext
+    // ): Promise<User | undefined> {
+    //     // return await User.findOne(post.authorId);
+    //     return await userLoader.load(post.id);
+    // }
+
     @Query(() => Post, { nullable: true })
     async post(
         @Arg("id", () => Int) postId: number
     ): Promise<Post | null | undefined> {
+        // {relations: [...]} -> TypeORM will authomatically do the SQL join for us :$
         // could fetch voteStatus with a complex query...maybe I'll make a field resolver for it
-        return await Post.findOne(postId);
+        return await Post.findOne(postId, { relations: ["author"] });
     }
 
     @Query(() => PaginatedPosts)
@@ -69,12 +79,20 @@ export default class PostResolver {
         const posts = await getConnection().query(
             `
           select p.*,
+          json_build_object(
+            'id', u.id,
+            'username', u.username,
+            'email', u.email,
+            'createdAt', u."createdAt",
+            'updatedAt', u."updatedAt"
+            ) author,
           ${
               req.session.userId
                   ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"' // $2 is going to be the user's id
                   : '$2 as "voteStatus"' // $2 is going to be null -> done to be sure I always pass the replacements in the correct order
           }
           from post p
+          inner join public.user u on u.id = p."authorId"
           ${cursor ? `where p."createdAt" < $3` : ""}
           order by p."createdAt" DESC
           limit $1

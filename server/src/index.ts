@@ -16,6 +16,7 @@ import PostResolver from "./resolvers/post";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import path from "path";
 import Updoot from "./entities/Updoot";
+import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
     // Initialize database connection
@@ -70,7 +71,12 @@ const main = async () => {
             resolvers: [HelloResolver, UserResolver, PostResolver],
             validate: false,
         }),
-        context: ({ req, res }): MyGraphQLContext => ({ req, res, redis }),
+        context: ({ req, res }): MyGraphQLContext => ({
+            req,
+            res,
+            redis,
+            userLoader: createUserLoader(),
+        }),
     });
 
     // Set routes for express app
